@@ -44,7 +44,7 @@ p, ul, ol, li {
 
 /* Liens */
 a {
-  color: var(--color-text-primary);
+  color: deepskyblue;
   text-decoration: none;
   transition: color 0.3s ease;
 }
