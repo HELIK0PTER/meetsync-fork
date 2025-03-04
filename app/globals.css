@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F5F6FF;
-  --foreground: #171717;
+  /* Couleurs principales */
+  --color-secondary: #332E3D;
+  --color-background: #15101D;
+  --color-text-primary: #FFF5F5;
+  --color-text-secondary: #77747C;
+
+  /* Typographie */
+  --font-main: 'Inria Sans', sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #15101D;
-    --foreground: #ededed;
-  }
-}
-
+/* Styles de base */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-main);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Textes */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-primary);
+  font-family: var(--font-main);
+  font-weight: 700;
+}
+
+p, ul, ol, li {
+  color: var(--color-text-primary);
+}
+
+/* Texte secondaire */
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+/* Éléments avec couleur secondaire */
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+/* Liens */
+a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-text-secondary);
+}
+
+/* Boutons */
+.button {
+  background-color: var(--color-secondary);
+  color: var(--color-text-primary);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font-main);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #403a4d; /* Une version légèrement plus claire de la couleur secondaire */
+}
+
+/* Conteneurs */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Utilitaires */
+.card {
+  background-color: var(--color-secondary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
