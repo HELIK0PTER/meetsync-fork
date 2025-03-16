@@ -53,35 +53,16 @@ a:hover {
   color: var(--color-text-secondary);
 }
 
-/* Boutons */
-.button {
-  background-color: var(--color-secondary);
-  color: var(--color-text-primary);
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-family: var(--font-main);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.logo {
+  font-family: Calibri, sans-serif;
+  font-size: 2.5rem;
 }
 
-.button:hover {
-  background-color: #403a4d; /* Une version légèrement plus claire de la couleur secondaire */
+.title {
+    font-size: 2rem;
 }
 
-/* Conteneurs */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* Utilitaires */
-.card {
-  background-color: var(--color-secondary);
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.subtitle {
+    font-size: 1rem;
+  color: dimgray;
 }
