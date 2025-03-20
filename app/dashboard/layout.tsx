@@ -21,10 +21,12 @@ export default function RootLayout({
     const iconClasses = "text-xl text-default-500 pointer-events-none flex-shrink-0";
     return (
         <div className="layout">
-            <Card className="left-0 top-0 absolute w-64 min-h-screen p-4 flex flex-col justify-between">
+            <Card className="left-0 top-0 float-left w-64 min-h-screen p-4 flex flex-col justify-between">
                 {/* Logo */}
                 <div>
-                    <h1 className="text-xl font-bold mb-6">MeetSync</h1>
+                    <Link color="foreground" href="/">
+                        <h1 className="text-xl font-bold mb-6">MeetSync</h1>
+                    </Link>
 
                     {/* Menu Items */}
                     <nav className="flex flex-col gap-2">
@@ -32,19 +34,19 @@ export default function RootLayout({
                             <EventIcon className="text-lg" />
                             Tableau de bord
                         </Link>
-                        <Link href="/events/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
+                        <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
                             <EventIcon className="text-lg" />
                             Créer un événement
                         </Link>
-                        <Link href="/events/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
+                        <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
                             <EventIcon className="text-lg" />
                             Mes invitations
                         </Link>
-                        <Link href="/events/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
+                        <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
                             <EventIcon className="text-lg" />
                             Mes événements
                         </Link>
-                        <Link href="/events/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
+                        <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
                             <EventIcon className="text-lg" />
                             Tous les événements
                         </Link>
@@ -88,7 +90,9 @@ export default function RootLayout({
                     </Dropdown>
                 </div>
             </Card>
-            {children}
+            <main className="ml-64">
+                {children}
+            </main>
         </div>
     );
 }
