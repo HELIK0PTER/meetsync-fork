@@ -5,20 +5,20 @@ import { useRouter } from "next/navigation"; // Next.js 13+ -> `next/navigation`
 import { supabase } from "../../../lib/supabase";
 
 export default function LogoutPage() {
-    const router = useRouter();
+  const router = useRouter();
 
-    useEffect(() => {
-        const logout = async () => {
-            await supabase.auth.signOut(); // Déconnexion de Supabase
-            router.push("/auth/login"); // Redirection vers la page de connexion
-        };
+  useEffect(() => {
+    const logout = async () => {
+      await supabase.auth.signOut(); // Déconnexion de Supabase
+      router.push("/auth/login"); // Redirection vers la page de connexion
+    };
 
-        logout();
-    }, [router]);
+    logout();
+  }, [router]);
 
-    return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <p className="text-xl">Déconnexion en cours...</p>
-        </div>
-    );
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <p className="text-xl">Déconnexion en cours...</p>
+    </div>
+  );
 }

@@ -9,8 +9,8 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import { UserProvider } from "../lib/UserContext";
-import {Footer} from "@/components/footer";
-import {AppWrapper} from "@/components/AppWrapper";
+import { Footer } from "@/components/footer";
+import { AppWrapper } from "@/components/AppWrapper";
 
 export const metadata: Metadata = {
   title: {
@@ -44,19 +44,18 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-      <UserProvider>
-
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
-            <Navbar />
-            <main className="container flex-grow">
-              <AppWrapper>{children}</AppWrapper>
-            </main>
-            <Footer />
-          </div>
-        </Providers>
-      </UserProvider>
+        <UserProvider>
+          <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+            <div className="relative flex flex-col h-screen">
+              <Navbar />
+              <main className="container flex-grow">
+                <AppWrapper>{children}</AppWrapper>
+              </main>
+              <Footer />
+            </div>
+          </Providers>
+        </UserProvider>
       </body>
     </html>
   );
- }
+}
