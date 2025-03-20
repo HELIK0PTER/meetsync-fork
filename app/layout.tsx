@@ -10,6 +10,7 @@ import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import { UserProvider } from "../lib/UserContext";
 import {Footer} from "@/components/footer";
+import {AppWrapper} from "@/components/AppWrapper";
 
 export const metadata: Metadata = {
   title: {
@@ -49,7 +50,7 @@ export default function RootLayout({
           <div className="relative flex flex-col h-screen">
             <Navbar />
             <main className="container flex-grow">
-              {children}
+              <AppWrapper>{children}</AppWrapper>
             </main>
             <Footer />
           </div>
@@ -58,4 +59,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+ }

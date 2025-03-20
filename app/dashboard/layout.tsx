@@ -1,12 +1,17 @@
 "use client"
 
 import {Avatar} from "@heroui/avatar";
-import {DashbordIcon, LeaveIcon} from "@/components/icons";
 import {Button} from "@heroui/button";
 import {Card, cn, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Link} from "@heroui/react";
 import {useUser} from "@/lib/UserContext";
 import {Divider} from "@heroui/divider";
 import React from "react";
+import { MdEvent, MdOutlineDashboard, MdEventRepeat } from "react-icons/md";
+import { FaRegCalendarPlus } from "react-icons/fa";
+import { SlEnvolopeLetter } from "react-icons/sl";
+import { FiLogOut } from "react-icons/fi";
+import { CiSettings } from "react-icons/ci";
+import { CgProfile } from "react-icons/cg";
 
 function EventIcon(props: { className: string }) {
     return null;
@@ -28,26 +33,27 @@ export default function RootLayout({
                         <h1 className="text-xl font-bold mb-6">MeetSync</h1>
                     </Link>
 
-                    {/* Menu Items */}
+
                     <nav className="flex flex-col gap-2">
                         <Link href="/dashboard" color="foreground" className="flex items-center gap-2 p-2" isBlock>
-                            <EventIcon className="text-lg" />
+                            <MdOutlineDashboard className="text-lg" />
                             Tableau de bord
                         </Link>
                         <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
-                            <EventIcon className="text-lg" />
+
+                            <FaRegCalendarPlus className="text-lg" />
                             Créer un événement
                         </Link>
                         <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
-                            <EventIcon className="text-lg" />
+                            <SlEnvolopeLetter className="text-lg" />
                             Mes invitations
                         </Link>
                         <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
-                            <EventIcon className="text-lg" />
+                            <MdEvent className="text-lg" />
                             Mes événements
                         </Link>
                         <Link href="/dashboard/create" color="foreground" className="flex items-center gap-2 p-2" isBlock>
-                            <EventIcon className="text-lg" />
+                            <MdEventRepeat className="text-lg" />
                             Tous les événements
                         </Link>
                     </nav>
@@ -66,14 +72,16 @@ export default function RootLayout({
                         </DropdownTrigger>
                         <DropdownMenu aria-label="Dropdown menu with icons" variant="faded">
                             <DropdownItem
-                                key="new"
+                                key="profil"
                                 href="/dashboard/profil"
+                                startContent={<CgProfile className={iconClasses} />}
                             >
                                 Profil
                             </DropdownItem>
                             <DropdownItem
-                                key="new"
+                                key="settings"
                                 href="/dashboard/settings"
+                                startContent={<CiSettings className={iconClasses} />}
                             >
                                 Paramètres
                             </DropdownItem>
@@ -81,7 +89,7 @@ export default function RootLayout({
                                 key="delete"
                                 className="text-danger"
                                 color="danger"
-                                startContent={<LeaveIcon className={cn(iconClasses, "text-danger")} />}
+                                startContent={<FiLogOut className={cn(iconClasses, "text-danger")} />}
                                 href="/auth/logout"
                             >
                                 Déconnection

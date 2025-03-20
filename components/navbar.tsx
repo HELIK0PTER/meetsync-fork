@@ -15,8 +15,9 @@ import { Link } from "@heroui/link";
 import { useUser } from "../lib/UserContext";
 import {Avatar} from "@heroui/avatar";
 import {cn, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@heroui/react";
-import { LeaveIcon, DashbordIcon } from "../components/icons"
 import {usePathname} from "next/navigation";
+import { MdOutlineDashboard } from "react-icons/md";
+import { FiLogOut } from "react-icons/fi";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -95,7 +96,7 @@ export const Navbar = () => {
                   <DropdownMenu aria-label="Dropdown menu with icons" variant="faded">
                     <DropdownItem
                         key="new"
-                        startContent={<DashbordIcon className={iconClasses} />}
+                        startContent={<MdOutlineDashboard className={iconClasses} />}
                         href="/dashboard"
                     >
                       Tableau de bord
@@ -104,7 +105,7 @@ export const Navbar = () => {
                         key="delete"
                         className="text-danger"
                         color="danger"
-                        startContent={<LeaveIcon className={cn(iconClasses, "text-danger")} />}
+                        startContent={<FiLogOut className={cn(iconClasses, "text-danger")} />}
                         href="/auth/logout"
                     >
                       Déconnection

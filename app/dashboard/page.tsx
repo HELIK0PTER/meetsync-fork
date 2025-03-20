@@ -19,7 +19,6 @@ export default function Dashboard() {
 
                 <div className="flex gap-3">
                     <Link
-                        isExternal
                         className={buttonStyles({
                             color: "secondary",
                             radius: "full",
