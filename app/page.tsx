@@ -7,7 +7,6 @@ import { title, subtitle } from "@/components/primitives";
 import {Image} from "@heroui/image";
 import {Card, CardBody, CardHeader} from "@heroui/card";
 import {Button} from "@heroui/button";
-import {Navbar} from "@/components/navbar";
 
 export default function Home() {
   return (
@@ -38,7 +37,7 @@ export default function Home() {
                               radius: "full",
                               variant: "shadow",
                           })}
-                          href={siteConfig.links.docs}
+                          href="/auth/login"
                       >
                           Commencer
                       </Link>
@@ -87,7 +86,7 @@ export default function Home() {
               </div>
 
               <div className="flex flex-row items-start justify-center gap-6 py-8 md:py-10">
-                  <Card className="py-4">
+                  <Card className="py-4 max-w-96">
                       <CardHeader className="pb-0 pt-2 px-4 flex-col items-center">
                           <span className="text-2xl text-center text-purple-600">Basic&nbsp;</span>
                           <Spacer y={2}/>
@@ -111,7 +110,7 @@ export default function Home() {
                       </CardBody>
                   </Card>
 
-                  <Card className="py-4">
+                  <Card className="py-4 max-w-96">
                       <CardHeader className="pb-0 pt-2 px-4 flex-col items-center">
                           <span className="text-2xl text-center text-purple-600">Plus&nbsp;</span>
                           <Spacer y={2}/>
@@ -139,7 +138,7 @@ export default function Home() {
                   </Card>
 
 
-                  <Card className="py-4">
+                  <Card className="py-4 max-w-96">
                       <CardHeader className="pb-0 pt-2 px-4 flex-col items-center">
                           <span className="text-2xl text-center text-purple-600">Pro&nbsp;</span>
                           <Spacer y={2}/>
