@@ -1,41 +1,103 @@
+"use client";
 
-import Link from "next/link";
+import { Link } from "@heroui/link";
+import { Form, Input, Button } from "@heroui/react";
+import React, { useState } from "react";
+import { supabase } from "../../../lib/supabase"; // Assurez-vous d'avoir configuré Supabase
+import { GoogleIcon } from "../../../components/icons";
 
 export default function SignupPage() {
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    // Connexion avec email et mot de passe
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setErrorMessage(null);
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+        const password = formData.get("password");
+
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error) {
+            setErrorMessage(error.message);
+        } else {
+            window.location.href = "/dashboard"; // Redirection après connexion
+        }
+
+        setLoading(false);
+    };
+
+    // Connexion avec Google
+    const signInWithGoogle = async () => {
+        setLoading(true);
+        setErrorMessage(null);
+
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+        });
+
+        if (error) {
+            setErrorMessage(error.message);
+        }
+
+        setLoading(false);
+    };
+
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="text-white p-8 rounded-2xl shadow-lg w-96">
-                <h1 className="text-center text-xl font-bold mb-12">MEETSYNC</h1>
+        <Form
+            className="w-full max-w-xs flex flex-col gap-4 items-center justify-center m-auto"
+            onSubmit={handleLogin}
+        >
+            <p className="text-3xl">Page de connexion</p>
 
+            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
 
-                <input
-                    type="email"
-                    placeholder="Email"
-                    className="text-center w-full p-3 mb-4 bg-[#343b4a] rounded-md focus:outline-none text-white placeholder-gray-400"
-                />
-                <input
-                    type="password"
-                    placeholder="Mot de passe"
-                    className="text-center w-full p-3 mb-4 bg-[#343b4a] rounded-md focus:outline-none text-white placeholder-gray-400"
-                />
+            <Input
+                isRequired
+                errorMessage="Merci d'entrer un email valide"
+                label="Email"
+                labelPlacement="outside"
+                name="email"
+                placeholder="Entrer votre email"
+                type="email"
+            />
 
-                <button className="w-full py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition">
-                    Créer le compte
-                </button>
+            <Input
+                isRequired
+                errorMessage="Merci d'entrer un mot de passe"
+                label="Mot de passe"
+                labelPlacement="outside"
+                name="password"
+                placeholder="Entrer votre mot de passe"
+                type="password"
+            />
 
-                <div className="my-4 border-t border-gray-600"></div>
+            <p>
+                Vous n'avez pas de compte ?{" "}
+                <Link color="secondary" href="/auth/signup">
+                    Inscription
+                </Link>
+            </p>
 
-                <button className="w-full py-3 bg-white text-black font-semibold rounded-md border border-red-500 hover:bg-gray-100 transition">
-                    Se connecter avec Google
-                </button>
-
-                <p className="text-center mt-4 text-sm">
-                    Pas encore de compte ?{" "}
-                    <Link href="/auth/signup" className="text-blue-400 hover:underline">
-                        Inscrivez-vous
-                    </Link>
-                </p>
+            <div className="flex gap-2">
+                <Button color="secondary" type="submit" isLoading={loading}>
+                    Connexion
+                </Button>
+                <Button type="reset" variant="flat">
+                    Réinitialiser
+                </Button>
             </div>
-        </div>
+
+            <Button onClick={signInWithGoogle} variant="flat">
+                <GoogleIcon /> <span className="text-xl">Google</span>
+            </Button>
+        </Form>
     );
 }

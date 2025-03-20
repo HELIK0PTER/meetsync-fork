@@ -1,48 +1,95 @@
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation"; // Next.js 13+ / `next/router` pour Next.js 12
+import { supabase } from "../../../lib/supabase";
+import { Link } from "@heroui/link";
+import { Form, Input, Button } from "@heroui/react";
+import { GoogleIcon } from "../../../components/icons";
 
 export default function SignupPage() {
+    const [error, setError] = useState(null);
+    const router = useRouter();
 
-    const handleClick = () => {
-        // logique de signup
+    const handleSignup = async (e) => {
+        e.preventDefault();
+        setError(null);
 
-    }
+        const data = Object.fromEntries(new FormData(e.currentTarget));
+        const { email, password, username } = data;
+
+        const { error, user } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { username }, // Stocke le pseudo dans `user_metadata`
+            },
+        });
+
+        if (error) {
+            setError(error.message);
+        } else {
+            router.push("/auth/login"); // Redirige vers la connexion
+        }
+    };
+
+    const handleGoogleSignup = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+        });
+
+        if (error) {
+            setError(error.message);
+        }
+    };
 
     return (
-        <div className="flex items-center justify-center min-h-screen]">
-            <div className="text-white p-8 rounded-2xl shadow-lg w-96">
-                <h1 className="text-center text-xl font-bold mb-12">MEETSYNC</h1>
-                <h2 className="text-center text-3xl mb-8 font-medium">INSCRIVEZ-VOUS</h2>
+        <Form
+            className="w-full max-w-xs flex flex-col gap-4 items-center justify-center m-auto"
+            onSubmit={handleSignup}
+        >
+            <p className="text-3xl">Inscription</p>
 
-                <input
-                    type="email"
-                    placeholder="Email"
-                    className="text-center w-full p-3 mb-4 bg-secondary rounded-md focus:outline-none placeholder-gray-400"
-                />
-                <input
-                    type="password"
-                    placeholder="Mot de passe"
-                    className="text-center w-full p-3 mb-4 bg-secondary rounded-md focus:outline-none text-white placeholder-gray-400"
-                />
+            {error && <p className="text-red-500">{error}</p>}
 
-                <button
-                    onClick={handleClick}
-                    className="w-full py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition">
-                    Créer le compte
-                </button>
+            <Input
+                isRequired
+                label="Nom d'utilisateur"
+                name="username"
+                placeholder="Entrer votre pseudo"
+                labelPlacement="outside"
+                type="text"
+            />
 
-                <div className="my-4 border-t border-gray-600"></div>
+            <Input
+                isRequired
+                label="Email"
+                name="email"
+                placeholder="Entrer votre email"
+                labelPlacement="outside"
+                type="email"
+            />
 
-                <button className="w-full py-3 bg-white text-black font-semibold rounded-md border border-red-500 hover:bg-gray-100 transition">
-                    Se connecter avec Google
-                </button>
+            <Input
+                isRequired
 
-                <p className="text-center mt-4 text-sm">
-                    Déjà un compte ?{" "}
-                    <Link href="/auth/login" className="text-blue-400 hover:underline">
-                        Connectez-vous
-                    </Link>
-                </p>
+                label="Mot de passe"
+                name="password"
+                placeholder="Créer un mot de passe"
+                labelPlacement="outside"
+                type="password"
+            />
+
+            <p>Déjà un compte ? <Link color="secondary" href="/auth/login">Connexion</Link></p>
+
+            <div className="flex flex-row gap-4">
+                <Button color="secondary" type="submit">S'inscrire</Button>
+
+                <Button type="button" variant="flat" onClick={handleGoogleSignup}>
+                    <GoogleIcon /> <span className="text-xl">Google</span>
+                </Button>
             </div>
-        </div>
+
+        </Form>
     );
 }
