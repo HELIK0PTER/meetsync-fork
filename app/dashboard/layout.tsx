@@ -111,13 +111,6 @@ export default function RootLayout({
                 Profil
               </DropdownItem>
               <DropdownItem
-                key="settings"
-                href="/dashboard/settings"
-                startContent={<CiSettings className={iconClasses} />}
-              >
-                Paramètres
-              </DropdownItem>
-              <DropdownItem
                 key="delete"
                 className="text-danger"
                 color="danger"

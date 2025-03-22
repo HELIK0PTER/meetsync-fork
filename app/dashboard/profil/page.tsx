@@ -1,23 +1,190 @@
 "use client";
-import { Button, Card, CardFooter, Image } from "@heroui/react";
+import {Button, Card, CardFooter, Form, Image, Input, Spacer} from "@heroui/react";
 import { useUser } from "@/lib/UserContext";
+import {Divider} from "@heroui/divider";
+import {CardBody, CardHeader} from "@heroui/card";
+import {Link} from "@heroui/link";
+import {Chip} from "@heroui/chip";
 
 export default function Dashboard() {
   const { user, loading } = useUser();
+
+
+  const renderAccountTypeChip = (accountType) => {
+    switch (accountType) {
+      case "basic":
+        return <Chip color="default">Basic</Chip>;
+      case "plus":
+        return <Chip color="warning">Plus</Chip>;
+      case "pro":
+        return <Chip color="danger">Pro</Chip>;
+      case "admin":
+        return <Chip color="success">Admin</Chip>;
+      default:
+        return null;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  };
+
+  const renderRenewType = (renewType) => {
+    switch (renewType) {
+      case 0:
+        return <Chip color="default">Aucun</Chip>;
+      case 1:
+        return <Chip color="default">Mensuel</Chip>;
+      case 2:
+        return <Chip color="default">Annuel</Chip>;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center m-auto  w-full h-full min-h-screen">
-      <Card isFooterBlurred className="border-none" radius="lg">
-        <Image
-          alt="Woman listing to music"
-          className="object-cover"
-          height={200}
-          src={user.user_metadata?.avatar_url}
-          width={200}
-        />
-        <CardFooter className="border-b-amber-50 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
-          <p className="text-tiny text-white/80">
-            {user.user_metadata?.full_name}{" "}
-          </p>
+    <div className="flex flex-row p-10 flex-wrap gap-16 items-center justify-center">
+      <div className="flex flex-col w-1/3 gap-4">
+        <Card className="max-w-[400px]">
+          <CardHeader className="flex gap-3">
+            <Image
+                alt="heroui logo"
+                height={40}
+                radius="sm"
+                src={user.user_metadata?.avatar_url}
+                width={40}
+            />
+            <div className="flex flex-col">
+              <p className="text-md">{user.user_metadata?.full_name}</p>
+              <p className="text-small text-default-500">{user.user_metadata?.email}</p>
+            </div>
+
+          </CardHeader>
+          <Divider />
+          <CardBody>
+            <p>Type de compte : {renderAccountTypeChip(user.account_type)}</p>
+            <Spacer y={2} />
+            <p>Renouvellement : {renderRenewType(user.renew_type)}</p>
+            <Spacer y={2} />
+            <p>Date de Création : <Chip color="default"> {formatDate(user.created_at)} </Chip></p>
+
+          </CardBody>
+        </Card>
+        <Card className="max-w-[400px]">
+          <CardHeader className="flex gap-3">
+            <div className="flex flex-col">
+              <p className="text-xl">Gestion du compte</p>
+            </div>
+
+          </CardHeader>
+          <Divider />
+          <CardBody>
+            <Button color="success">Activer la double authentification</Button>
+            <Spacer y={2} />
+            <Button color="danger">Supprimer le compte</Button>
+
+
+          </CardBody>
+        </Card>
+      </div>
+      <Card className="max-w-[400px]  w-1/3">
+        <CardHeader className="flex gap-3">
+          <div className="flex flex-col">
+            <p className="text-xl">Changer de mot de passe</p>
+          </div>
+
+        </CardHeader>
+        <Divider />
+        <CardBody>
+          <Form onSubmit={renderAccountTypeChip}>
+            <Input
+                isRequired
+                errorMessage="Merci d'entrer un mot de passe valide"
+                label="Ancien mot de passe"
+                labelPlacement="outside"
+                name="password"
+                placeholder="Entrer votre ancien mot de passe"
+                type="password"
+            />
+            <Input
+                isRequired
+                errorMessage="Merci d'entrer un mot de passe valide"
+                label="Mot de passe"
+                labelPlacement="outside"
+                name="password"
+                placeholder="Entrer votre mot de passe"
+                type="password"
+            />
+            <Input
+                isRequired
+                errorMessage="Merci d'entrer un mot de passe valide"
+                label="Confirmer le mot de passe"
+                labelPlacement="outside"
+                name="password"
+                placeholder="Confirmer votre mot de passe"
+                type="password"
+            />
+            <Button type="submit" color="secondary">Changer</Button>
+          </Form>
+        </CardBody>
+      </Card>
+      <Card className="max-w-[400px]">
+        <CardHeader className="flex gap-3">
+          <Image
+              alt="heroui logo"
+              height={40}
+              radius="sm"
+              src={user.user_metadata?.avatar_url}
+              width={40}
+          />
+          <div className="flex flex-col">
+            <p className="text-md">{user.user_metadata?.full_name}</p>
+            <p className="text-small text-default-500">{user.user_metadata?.email}</p>
+          </div>
+
+        </CardHeader>
+        <Divider />
+        <CardBody>
+          <p>Type de compte : <Chip color="default">Basic</Chip> <Chip color="warning">Plus</Chip> <Chip color="danger">Pro</Chip> <Chip color="success">Admin</Chip></p>
+        </CardBody>
+        <Divider />
+        <CardFooter>
+          <Link isExternal showAnchorIcon href="https://github.com/heroui-inc/heroui">
+            Visit source code on GitHub.
+          </Link>
+        </CardFooter>
+      </Card>
+      <Card className="max-w-[400px]">
+        <CardHeader className="flex gap-3">
+          <Image
+              alt="heroui logo"
+              height={40}
+              radius="sm"
+              src={user.user_metadata?.avatar_url}
+              width={40}
+          />
+          <div className="flex flex-col">
+            <p className="text-md">{user.user_metadata?.full_name}</p>
+            <p className="text-small text-default-500">{user.user_metadata?.email}</p>
+          </div>
+
+        </CardHeader>
+        <Divider />
+        <CardBody>
+          <p>Type de compte : <Chip color="default">Basic</Chip> <Chip color="warning">Plus</Chip> <Chip color="danger">Pro</Chip> <Chip color="success">Admin</Chip></p>
+        </CardBody>
+        <Divider />
+        <CardFooter>
+          <Link isExternal showAnchorIcon href="https://github.com/heroui-inc/heroui">
+            Visit source code on GitHub.
+          </Link>
         </CardFooter>
       </Card>
     </div>

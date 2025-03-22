@@ -31,7 +31,7 @@ export default function Home() {
 
           <div className="flex gap-3">
             <Link
-              isExternal
+              isExternal  
               className={buttonStyles({
                 color: "secondary",
                 radius: "full",

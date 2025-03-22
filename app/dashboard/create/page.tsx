@@ -164,11 +164,6 @@ export default function Dashboard() {
             Reset
           </Button>
         </div>
-        {action && (
-          <div className="text-small text-default-500">
-            Action: <code>{action}</code>
-          </div>
-        )}
       </Form>
     </div>
   );
