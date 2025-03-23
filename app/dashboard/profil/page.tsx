@@ -69,11 +69,14 @@ export default function Dashboard() {
           </CardHeader>
           <Divider />
           <CardBody>
-            <p>Type de compte : {renderAccountTypeChip(user.account_type)}</p>
+            <p>Type de compte :</p>
+            {renderAccountTypeChip(user.account_type)}
             <Spacer y={2} />
-            <p>Renouvellement : {renderRenewType(user.renew_type)}</p>
+            <p>Renouvellement :</p>
+            {renderRenewType(user.renew_type)}
             <Spacer y={2} />
-            <p>Date de Création : <Chip color="default"> {formatDate(user.created_at)} </Chip></p>
+            <p>Date de Création :</p>
+            <Chip color="default"> {formatDate(user.created_at)} </Chip>
 
           </CardBody>
         </Card>
@@ -86,7 +89,11 @@ export default function Dashboard() {
           </CardHeader>
           <Divider />
           <CardBody>
-            <Button color="success">Activer la double authentification</Button>
+            <Button color="secondary">
+              Exporter les données
+            </Button>
+            <Spacer y={2} />
+            <Button color="secondary" isDisabled>Activer la mfa ( soon )</Button>
             <Spacer y={2} />
             <Button color="danger">Supprimer le compte</Button>
 
@@ -103,89 +110,41 @@ export default function Dashboard() {
         </CardHeader>
         <Divider />
         <CardBody>
-          <Form onSubmit={renderAccountTypeChip}>
-            <Input
-                isRequired
-                errorMessage="Merci d'entrer un mot de passe valide"
-                label="Ancien mot de passe"
-                labelPlacement="outside"
-                name="password"
-                placeholder="Entrer votre ancien mot de passe"
-                type="password"
-            />
-            <Input
-                isRequired
-                errorMessage="Merci d'entrer un mot de passe valide"
-                label="Mot de passe"
-                labelPlacement="outside"
-                name="password"
-                placeholder="Entrer votre mot de passe"
-                type="password"
-            />
-            <Input
-                isRequired
-                errorMessage="Merci d'entrer un mot de passe valide"
-                label="Confirmer le mot de passe"
-                labelPlacement="outside"
-                name="password"
-                placeholder="Confirmer votre mot de passe"
-                type="password"
-            />
-            <Button type="submit" color="secondary">Changer</Button>
-          </Form>
+          {user.app_metadata?.provider === "google" ? (
+              <p>Le changement de mot est passe est désactivé pour les compte connecté depuis un compte Google.</p>
+          ) : (
+            <Form onSubmit={renderAccountTypeChip}>
+              <Input
+                  isRequired
+                  errorMessage="Merci d'entrer un mot de passe valide"
+                  label="Ancien mot de passe"
+                  labelPlacement="outside"
+                  name="password"
+                  placeholder="Entrer votre ancien mot de passe"
+                  type="password"
+              />
+              <Input
+                  isRequired
+                  errorMessage="Merci d'entrer un mot de passe valide"
+                  label="Mot de passe"
+                  labelPlacement="outside"
+                  name="password"
+                  placeholder="Entrer votre mot de passe"
+                  type="password"
+              />
+              <Input
+                  isRequired
+                  errorMessage="Merci d'entrer un mot de passe valide"
+                  label="Confirmer le mot de passe"
+                  labelPlacement="outside"
+                  name="password"
+                  placeholder="Confirmer votre mot de passe"
+                  type="password"
+              />
+              <Button type="submit" color="secondary">Changer</Button>
+            </Form>
+          )}
         </CardBody>
-      </Card>
-      <Card className="max-w-[400px]">
-        <CardHeader className="flex gap-3">
-          <Image
-              alt="heroui logo"
-              height={40}
-              radius="sm"
-              src={user.user_metadata?.avatar_url}
-              width={40}
-          />
-          <div className="flex flex-col">
-            <p className="text-md">{user.user_metadata?.full_name}</p>
-            <p className="text-small text-default-500">{user.user_metadata?.email}</p>
-          </div>
-
-        </CardHeader>
-        <Divider />
-        <CardBody>
-          <p>Type de compte : <Chip color="default">Basic</Chip> <Chip color="warning">Plus</Chip> <Chip color="danger">Pro</Chip> <Chip color="success">Admin</Chip></p>
-        </CardBody>
-        <Divider />
-        <CardFooter>
-          <Link isExternal showAnchorIcon href="https://github.com/heroui-inc/heroui">
-            Visit source code on GitHub.
-          </Link>
-        </CardFooter>
-      </Card>
-      <Card className="max-w-[400px]">
-        <CardHeader className="flex gap-3">
-          <Image
-              alt="heroui logo"
-              height={40}
-              radius="sm"
-              src={user.user_metadata?.avatar_url}
-              width={40}
-          />
-          <div className="flex flex-col">
-            <p className="text-md">{user.user_metadata?.full_name}</p>
-            <p className="text-small text-default-500">{user.user_metadata?.email}</p>
-          </div>
-
-        </CardHeader>
-        <Divider />
-        <CardBody>
-          <p>Type de compte : <Chip color="default">Basic</Chip> <Chip color="warning">Plus</Chip> <Chip color="danger">Pro</Chip> <Chip color="success">Admin</Chip></p>
-        </CardBody>
-        <Divider />
-        <CardFooter>
-          <Link isExternal showAnchorIcon href="https://github.com/heroui-inc/heroui">
-            Visit source code on GitHub.
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );
