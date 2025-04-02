@@ -88,11 +88,16 @@ export default function SignupPage() {
       </p>
 
       <div className="flex flex-row gap-4">
-        <Button color="secondary" type="submit">
+        <Button color="secondary" type="submit" className="py-6">
           S&#39;inscrire
         </Button>
 
-        <Button type="button" variant="flat" onClick={handleGoogleSignup}>
+        <Button
+          className="py-6"
+          type="button"
+          variant="flat"
+          onPress={handleGoogleSignup}
+        >
           <GoogleIcon /> <span className="text-xl">Google</span>
         </Button>
       </div>

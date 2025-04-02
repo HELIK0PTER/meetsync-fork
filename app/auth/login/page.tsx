@@ -95,7 +95,7 @@ export default function SignupPage() {
         </Button>
       </div>
 
-      <Button onClick={signInWithGoogle} variant="flat">
+      <Button onClick={signInWithGoogle} variant="flat" className="py-6">
         <GoogleIcon /> <span className="text-xl">Google</span>
       </Button>
     </Form>
