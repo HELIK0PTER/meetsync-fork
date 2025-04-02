@@ -93,9 +93,9 @@ export default function Home() {
           <span className="text-2xl">vos appareils&nbsp;</span>
         </div>
         <Image
-          src="/createevent.png"
+          src="/multiplatform.png"
           alt="Maquettepng logo"
-          width={800}
+          width={450}
           height={450}
           className="place-self-center"
         />
