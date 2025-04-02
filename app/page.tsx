@@ -85,6 +85,21 @@ export default function Home() {
         />
       </div>
       <Spacer y={10} />
+      <div className="flex flex-row items-center justify-center gap-4 py-8 md:py-10">
+        <div className="inline-block max-w-xl text-center justify-center">
+          <span className="text-2xl">Accessible sur&nbsp;</span>
+          <span className="text-2xl text-purple-500">tous&nbsp;</span>
+          <span className="text-2xl">vos appareils&nbsp;</span>
+        </div>
+        <Image
+          src="/multiplatform.png"
+          alt="Maquettepng logo"
+          width={450}
+          height={450}
+          className="place-self-center"
+        />
+      </div>
+      <Spacer y={10} />
       <PlansSection />
     </section>
   );

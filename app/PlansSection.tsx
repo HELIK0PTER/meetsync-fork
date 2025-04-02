@@ -1,30 +1,64 @@
 "use client";
 
-import { Button, CardHeader } from "@heroui/react";
+import { Button, CardFooter, CardHeader } from "@heroui/react";
 import { CardBody } from "@heroui/react";
 import { Card } from "@heroui/react";
 import { Spacer } from "@heroui/react";
-import Image from "next/image";
 import React from "react";
+
+interface Feature {
+  text: string;
+  included: boolean;
+}
+
+interface Plan {
+  name: string;
+  price: string;
+  period?: string;
+  features: Feature[];
+  hasTrial?: boolean;
+}
+
+const PLANS: Plan[] = [
+  {
+    name: "Basic",
+    price: "GRATUIT",
+    features: [
+      { text: "2 événements simultanés", included: true },
+      { text: "20 invitations par événement", included: true },
+      { text: "Pas de personnalisation des invitations", included: false },
+      { text: "Pas d'envoi automatique des rappels", included: false },
+    ],
+  },
+  {
+    name: "Plus",
+    price: "10€",
+    period: "/mois",
+    hasTrial: true,
+    features: [
+      { text: "10 événements simultanés", included: true },
+      { text: "300 invitations par événement", included: true },
+      { text: "8 invitations personnalisables par mois", included: true },
+      { text: "Pas d'envoi automatique des rappels", included: false },
+    ],
+  },
+  {
+    name: "Pro",
+    price: "200€",
+    period: "/mois",
+    hasTrial: true,
+    features: [
+      { text: "Événements simultanés illimités", included: true },
+      { text: "Invitations par événement illimitées", included: true },
+      { text: "300 invitations personnalisables par mois", included: true },
+      { text: "Rappels par mails automatiques configurables", included: true },
+    ],
+  },
+];
 
 const PlansSection = () => {
   return (
     <>
-      <div className="flex flex-row items-center justify-center gap-4 py-8 md:py-10">
-        <div className="inline-block max-w-xl text-center justify-center">
-          <span className="text-2xl">Accessible sur&nbsp;</span>
-          <span className="text-2xl text-purple-500">tous&nbsp;</span>
-          <span className="text-2xl">vos appareils&nbsp;</span>
-        </div>
-        <Image
-          src="/multiplatform.png"
-          alt="Maquettepng logo"
-          width={450}
-          height={450}
-          className="place-self-center"
-        />
-      </div>
-      <Spacer y={10} />
       <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="inline-block max-w-xl justify-start">
           <span className="text-2xl">
@@ -32,133 +66,54 @@ const PlansSection = () => {
           </span>
         </div>
 
-        <div className="flex flex-row items-start justify-center gap-6 py-8 md:py-10">
-          <Card className="py-4 max-w-96">
-            <CardHeader className="pb-0 pt-2 px-4 flex-col items-center">
-              <span className="text-2xl text-center text-purple-600">
-                Basic&nbsp;
-              </span>
-              <Spacer y={2} />
-              <span className="text-3xl text-center">GRATUIT&nbsp;</span>
-            </CardHeader>
-            <CardBody className="overflow-visible py-2">
-              <Spacer y={5} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">2 évenements simultanés</span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">20 invitations par évènements</span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-gray-700">✘</span>{" "}
-                <span className="text-2xl  text-gray-700">
-                  Pas de personnalisation des invitations
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8 md:py-10">
+          {PLANS.map((plan, index) => (
+            <Card key={index} className="py-4 max-w-96 justify-self-center">
+              <CardHeader className="pb-0 pt-2 px-4 flex-col items-center">
+                <span className="text-2xl text-center text-purple-600">
+                  {plan.name}&nbsp;
                 </span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-gray-700">✘</span>{" "}
-                <span className="text-2xl  text-gray-700">
-                  Pas d’envoi automatique des rappel
-                </span>
-              </p>
-              <Spacer y={5} />
-            </CardBody>
-          </Card>
-
-          <Card className="py-4 max-w-96">
-            <CardHeader className="pb-0 pt-2 px-4 flex-col items-center">
-              <span className="text-2xl text-center text-purple-600">
-                Plus&nbsp;
-              </span>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-center">10€&nbsp;</span>{" "}
-                <span className="text-2xl text-gray-700">/mois</span>
-              </p>
-            </CardHeader>
-            <CardBody className="overflow-visible py-2">
-              <Spacer y={5} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">10 évenements simultanés</span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">300 invitations par évènements</span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">
-                  8 invitations personnalisables par mois
-                </span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-gray-700">✘</span>{" "}
-                <span className="text-2xl  text-gray-700">
-                  Pas d’envoi automatique des rappel
-                </span>
-              </p>
-              <Spacer y={5} />
-              <Button color="secondary" className="text-2xl">
-                30 jours d’essai gratuit
-              </Button>
-            </CardBody>
-          </Card>
-
-          <Card className="py-4 max-w-96">
-            <CardHeader className="pb-0 pt-2 px-4 flex-col items-center">
-              <span className="text-2xl text-center text-purple-600">
-                Pro&nbsp;
-              </span>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-center">200€&nbsp;</span>{" "}
-                <span className="text-2xl text-gray-700">/mois</span>
-              </p>
-            </CardHeader>
-            <CardBody className="overflow-visible py-2">
-              <Spacer y={5} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">
-                  évenements simultanés illimités
-                </span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">
-                  invitations par évènements illimitées
-                </span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">
-                  300 invitations personnalisables par mois
-                </span>
-              </p>
-              <Spacer y={2} />
-              <p>
-                <span className="text-3xl text-purple-600">✔</span>{" "}
-                <span className="text-2xl">
-                  Rappels par mails automatiques configurables
-                </span>
-              </p>
-              <Spacer y={5} />
-              <Button color="secondary" className="text-2xl">
-                30 jours d’essai gratuit
-              </Button>
-            </CardBody>
-          </Card>
+                <Spacer y={2} />
+                <p>
+                  <span className="text-3xl text-center">
+                    {plan.price}&nbsp;
+                  </span>
+                  {plan.period && (
+                    <span className="text-2xl text-gray-700">
+                      {plan.period}
+                    </span>
+                  )}
+                </p>
+              </CardHeader>
+              <CardBody className="overflow-visible py-2">
+                <Spacer y={5} />
+                {plan.features.map((feature, featureIndex) => (
+                  <div key={featureIndex}>
+                    <p>
+                      <span
+                        className={`text-3xl ${feature.included ? "text-purple-600" : "text-red-800"}`}
+                      >
+                        {feature.included ? "✔" : "✘"}
+                      </span>{" "}
+                      <span
+                        className={`text-2xl ${!feature.included ? "text-gray-600" : ""}`}
+                      >
+                        {feature.text}
+                      </span>
+                    </p>
+                    <Spacer y={2} />
+                  </div>
+                ))}
+              </CardBody>
+              <CardFooter>
+                {plan.hasTrial && (
+                  <Button color="secondary" className="text-2xl w-full">
+                    {`30 jours d'essai gratuit`}
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       </div>
     </>
