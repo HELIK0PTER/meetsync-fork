@@ -99,7 +99,7 @@ export default function RootLayout({
             <DropdownTrigger>
               <Link color="foreground" className="flex items-center gap-2 p-2">
                 <Avatar src={user.user_metadata?.avatar_url} isBordered />
-                <span>{user.user_metadata?.full_name}</span>
+                <span className="text-md">{ user.user_metadata?.username || user.user_metadata?.full_name }</span>
               </Link>
             </DropdownTrigger>
             <DropdownMenu aria-label="Dropdown menu with icons" variant="faded">

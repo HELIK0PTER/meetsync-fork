@@ -9,29 +9,65 @@ import { supabase } from "@/lib/supabase";
 import { GoogleIcon } from "@/components/icons";
 
 export default function SignupPage() {
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string>("");
   const router = useRouter();
 
-  const handleSignup = async (e) => {
+  const validatePassword = (password: string, confirmPassword: string): string => {
+    if (password !== confirmPassword) {
+      return "Les mots de passe ne correspondent pas";
+    }
+    if (password.length < 8) {
+      return "Le mot de passe doit contenir au moins 8 caractères";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Le mot de passe doit contenir au moins une majuscule";
+    }
+    if (!/[a-z]/.test(password)) {
+      return "Le mot de passe doit contenir au moins une minuscule";
+    }
+    if (!/[0-9]/.test(password)) {
+      return "Le mot de passe doit contenir au moins un chiffre";
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return "Le mot de passe doit contenir au moins un symbole";
+    }
+    return "";
+  };
+
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setPasswordError("");
 
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    const { email, password, username } = data;
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+    const username = formData.get('username') as string;
 
-    const { error, user } = await supabase.auth.signUp({
+    const passwordValidationError = validatePassword(password, confirmPassword);
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError);
+      return;
+    }
+
+    const { error: signUpError, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username }, // Stocke le pseudo dans `user_metadata`
+        data: {
+          full_name: username
+        },
       },
     });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      router.push("/auth/login"); // Redirige vers la connexion
+    if (signUpError || !data.user) {
+      setError(signUpError?.message || "Erreur lors de la création du compte");
+      return;
     }
+
+    router.push("/auth/login");
   };
 
   const handleGoogleSignup = async () => {
@@ -52,6 +88,7 @@ export default function SignupPage() {
       <p className="text-3xl">Inscription</p>
 
       {error && <p className="text-red-500">{error}</p>}
+      {passwordError && <p className="text-red-500">{passwordError}</p>}
 
       <Input
         isRequired
@@ -77,6 +114,16 @@ export default function SignupPage() {
         labelPlacement="outside"
         name="password"
         placeholder="Créer un mot de passe"
+        type="password"
+        description="8 caractères minimum avec majuscule, minuscule, chiffre et symbole"
+      />
+
+      <Input
+        isRequired
+        label="Confirmer le mot de passe"
+        labelPlacement="outside"
+        name="confirmPassword"
+        placeholder="Confirmer votre mot de passe"
         type="password"
       />
 
