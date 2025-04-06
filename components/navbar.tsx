@@ -25,28 +25,37 @@ import { MdOutlineDashboard } from "react-icons/md";
 import { FiLogOut } from "react-icons/fi";
 
 import { useUser } from "../lib/UserContext";
+import type { User } from "@supabase/supabase-js";
+
+type NavLinkColor = "secondary" | "foreground" | "primary" | "success" | "warning" | "danger" | undefined;
+
+type MenuItem = {
+  name: string;
+  href: string;
+  color: NavLinkColor;
+};
+
+type UserContextType = {
+  user: User | null;
+  loading: boolean;
+};
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const iconClasses =
     "text-xl text-default-500 pointer-events-none flex-shrink-0";
 
-  const menuItems = [
-    "Profile",
-    "Dashboard",
-    "Activity",
-    "Analytics",
-    "System",
-    "Deployments",
-    "My Settings",
-    "Team Settings",
-    "Help & Feedback",
-    "Log Out",
-  ];
-  const { user, loading } = useUser();
-
   const pathname = usePathname();
+  const userContext = useUser();
+  const { user, loading } = userContext || { user: null, loading: false };
   const isDashboard = pathname.startsWith("/dashboard");
+
+  const menuItems: MenuItem[] = [
+    { name: "Accueil", href: "/", color: pathname === "/" ? "secondary" : "foreground" },
+    { name: "Produits", href: "/product", color: pathname === "/product" ? "secondary" : "foreground" },
+    { name: "Plans", href: "/plans", color: pathname === "/plans" ? "secondary" : "foreground" },
+    { name: "Avis", href: "/review", color: pathname === "/review" ? "secondary" : "foreground" },
+  ];
 
   if (isDashboard) return null;
 
@@ -75,26 +84,13 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarItem isActive>
-          <Link aria-current="page" color="secondary" href="/">
-            Accueil
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="/product">
-            Produits
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="/plans">
-            Plans
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="/review">
-            Avis
-          </Link>
-        </NavbarItem>
+        {menuItems.map((item) => (
+          <NavbarItem key={item.name} isActive={pathname === item.href}>
+            <Link color={item.color} href={item.href}>
+              {item.name}
+            </Link>
+          </NavbarItem>
+        ))}
       </NavbarContent>
 
       <NavbarContent justify="end">
@@ -103,7 +99,7 @@ export const Navbar = () => {
             <Dropdown>
               <DropdownTrigger>
                 <Link>
-                  <Avatar isBordered src={user.user_metadata?.avatar_url} />
+                  <Avatar isBordered src={(user as any)?.user_metadata?.avatar_url || undefined} />
                 </Link>
               </DropdownTrigger>
               <DropdownMenu
@@ -144,21 +140,15 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarMenu>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+        {menuItems.map((item) => (
+          <NavbarMenuItem key={item.name}>
             <Link
               className="w-full"
-              color={
-                index === 2
-                  ? "warning"
-                  : index === menuItems.length - 1
-                    ? "danger"
-                    : "foreground"
-              }
-              href="#"
+              color={item.color}
+              href={item.href}
               size="lg"
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}

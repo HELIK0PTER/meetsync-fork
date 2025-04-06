@@ -9,6 +9,7 @@ import { Card } from "@heroui/react";
 import PlansSection from "./PlansSection";
 
 import { title, subtitle } from "@/components/primitives";
+import {useUser} from "@/lib/UserContext";
 
 const features = [
   {
@@ -29,6 +30,7 @@ const features = [
 ];
 
 export default function Home() {
+  const { user, loading } = useUser();
   return (
     <section className="w-full">
       {/* Hero Section */}
@@ -58,17 +60,32 @@ export default function Home() {
                   gestion flexible et intuitive.
                 </p>
                 <div className="mt-10 flex items-center justify-center lg:justify-start gap-4">
-                  <Link
-                    href="/auth/login"
-                    className={buttonStyles({
-                      color: "secondary",
-                      radius: "full",
-                      variant: "shadow",
-                      size: "lg",
-                    })}
-                  >
-                    Commencer gratuitement
-                  </Link>
+
+                  {user ? (
+                      <Link
+                          href="/dashboard"
+                          className={buttonStyles({
+                            color: "secondary",
+                            radius: "full",
+                            variant: "shadow",
+                            size: "lg",
+                          })}
+                      >
+                        Tableau de bord
+                      </Link>
+                  ) : (
+                      <Link
+                          href="/auth/login"
+                          className={buttonStyles({
+                            color: "secondary",
+                            radius: "full",
+                            variant: "shadow",
+                            size: "lg",
+                          })}
+                      >
+                        Commencer gratuitement
+                      </Link>
+                  )}
                 </div>
               </div>
             </div>
