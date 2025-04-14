@@ -20,17 +20,17 @@ export const Footer = () => {
         <p className="text-2xl">MEETSYNC</p>
         <Spacer y={5} />
         <div className="flex flex-row gap-5">
-          <Link isBlock color="secondary" size="lg">
+          <Link isBlock href="/" color="secondary" size="lg">
             Accueil
           </Link>
-          <Link isBlock color="secondary" size="lg">
+          <Link isBlock href="/#products" color="secondary" size="lg">
             Produits
           </Link>
-          <Link isBlock color="secondary" size="lg">
-            Plans
-          </Link>
-          <Link isBlock color="secondary" size="lg">
+          <Link isBlock href="/#review" color="secondary" size="lg">
             Avis
+          </Link>
+          <Link isBlock href="/#plans" color="secondary" size="lg">
+            Plans
           </Link>
           <ThemeSwitch />
         </div>

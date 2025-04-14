@@ -14,12 +14,12 @@ const config = {
         mono: ["var(--font-mono)"],
       },
       animation: {
-        scroll: 'scroll 40s linear infinite',
+        scroll: 'scroll 60s linear infinite',
       },
       keyframes: {
         scroll: {
           '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(calc(-280px * 4 - 1rem * 3))' },
         },
       },
     },

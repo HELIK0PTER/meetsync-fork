@@ -52,9 +52,9 @@ export const Navbar = () => {
 
   const menuItems: MenuItem[] = [
     { name: "Accueil", href: "/", color: pathname === "/" ? "secondary" : "foreground" },
-    { name: "Produits", href: "/product", color: pathname === "/product" ? "secondary" : "foreground" },
-    { name: "Plans", href: "/plans", color: pathname === "/plans" ? "secondary" : "foreground" },
-    { name: "Avis", href: "/review", color: pathname === "/review" ? "secondary" : "foreground" },
+    { name: "Fonctionnalités", href: "/#product", color: pathname === "/product" ? "secondary" : "foreground" },
+    { name: "Avis", href: "/#review", color: pathname === "/#review" ? "secondary" : "foreground" },
+    { name: "Plans", href: "/#plans", color: pathname === "/#plans" ? "secondary" : "foreground" },
   ];
 
   if (isDashboard) return null;
@@ -65,11 +65,6 @@ export const Navbar = () => {
       isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
     >
-      <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-        />
-      </NavbarContent>
 
       <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
@@ -139,20 +134,6 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarMenu>
-        {menuItems.map((item) => (
-          <NavbarMenuItem key={item.name}>
-            <Link
-              className="w-full"
-              color={item.color}
-              href={item.href}
-              size="lg"
-            >
-              {item.name}
-            </Link>
-          </NavbarMenuItem>
-        ))}
-      </NavbarMenu>
     </HeroUINavbar>
   );
 };

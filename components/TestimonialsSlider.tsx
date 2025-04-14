@@ -57,29 +57,35 @@ const planColors: Record<Plan, "default" | "secondary" | "primary"> = {
 export default function TestimonialsSlider() {
   return (
     <div className="relative overflow-hidden w-full py-10">
-      <div className="flex gap-8 animate-scroll">
+      <div className="flex gap-4 md:gap-8 animate-scroll">
         {[...testimonials, ...testimonials].map((testimonial, index) => (
           <Card 
             key={`${testimonial.id}-${index}`}
-            className="min-w-[300px] max-w-[300px] bg-content1"
+            className="min-w-[280px] sm:min-w-[300px] max-w-[300px] bg-content1 shadow-md hover:shadow-xl transition-shadow"
           >
-            <CardBody className="gap-4">
+            <CardBody className="gap-3 p-4 sm:p-6">
               <div className="flex gap-3 items-center">
-                <Avatar src={testimonial.avatar} size="lg" />
+                <Avatar 
+                  src={testimonial.avatar} 
+                  size="lg"
+                  className="w-12 h-12 sm:w-14 sm:h-14" 
+                />
                 <div>
-                  <p className="font-semibold">{testimonial.name}</p>
-                  <p className="text-small text-default-500">{testimonial.role}</p>
+                  <p className="font-semibold text-sm sm:text-base">{testimonial.name}</p>
+                  <p className="text-xs sm:text-sm text-default-500">{testimonial.role}</p>
                   <Chip 
                     size="sm" 
                     variant="flat" 
                     color={planColors[testimonial.plan]}
-                    className="mt-1"
+                    className="mt-1 text-xs sm:text-sm"
                   >
                     Plan {testimonial.plan}
                   </Chip>
                 </div>
               </div>
-              <p className="text-default-500">{testimonial.content}</p>
+              <p className="text-default-500 text-sm sm:text-base line-clamp-4 sm:line-clamp-none">
+                {testimonial.content}
+              </p>
             </CardBody>
           </Card>
         ))}

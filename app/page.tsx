@@ -105,7 +105,7 @@ export default function Home() {
         {/* Features Section */}
         <div className="py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl text-center">
+            <div id="product" className="mx-auto max-w-2xl text-center">
               <h2 className={title({color: "violet", size: "md"})}>Tout ce dont vous avez besoin</h2>
               <p className={subtitle({class: "mt-6"})}>
                 Une suite complète d'outils pour gérer vos événements efficacement
@@ -136,7 +136,7 @@ export default function Home() {
 
         {/* Avis */}
         <div className="py-24 sm:py-32">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div id="review" className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className={title({color: "violet", size: "md"})}>Vos Avis</h2>
               <p className={subtitle({class: "mt-6"})}>
@@ -150,7 +150,7 @@ export default function Home() {
         </div>
 
           {/* Plans Section */}
-          <div className="">
+          <div className="" id="plans">
             <PlansSection/>
           </div>
       </section>
