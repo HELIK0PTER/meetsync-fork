@@ -27,7 +27,14 @@ import { FiLogOut } from "react-icons/fi";
 import { useUser } from "../lib/UserContext";
 import type { User } from "@supabase/supabase-js";
 
-type NavLinkColor = "secondary" | "foreground" | "primary" | "success" | "warning" | "danger" | undefined;
+type NavLinkColor =
+  | "secondary"
+  | "foreground"
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | undefined;
 
 type MenuItem = {
   name: string;
@@ -51,10 +58,26 @@ export const Navbar = () => {
   const isDashboard = pathname.startsWith("/dashboard");
 
   const menuItems: MenuItem[] = [
-    { name: "Accueil", href: "/", color: pathname === "/" ? "secondary" : "foreground" },
-    { name: "Fonctionnalités", href: "/#product", color: pathname === "/product" ? "secondary" : "foreground" },
-    { name: "Avis", href: "/#review", color: pathname === "/#review" ? "secondary" : "foreground" },
-    { name: "Plans", href: "/#plans", color: pathname === "/#plans" ? "secondary" : "foreground" },
+    {
+      name: "Accueil",
+      href: "/",
+      color: pathname === "/" ? "secondary" : "foreground",
+    },
+    {
+      name: "Fonctionnalités",
+      href: "/#product",
+      color: pathname === "/product" ? "secondary" : "foreground",
+    },
+    {
+      name: "Avis",
+      href: "/#review",
+      color: pathname === "/#review" ? "secondary" : "foreground",
+    },
+    {
+      name: "Plans",
+      href: "/#plans",
+      color: pathname === "/#plans" ? "secondary" : "foreground",
+    },
   ];
 
   if (isDashboard) return null;
@@ -65,7 +88,6 @@ export const Navbar = () => {
       isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
     >
-
       <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
           <p className="font-bold text-inherit">MEETSYNC</p>
@@ -94,7 +116,10 @@ export const Navbar = () => {
             <Dropdown>
               <DropdownTrigger>
                 <Link>
-                  <Avatar isBordered src={(user as any)?.user_metadata?.avatar_url || undefined} />
+                  <Avatar
+                    isBordered
+                    src={(user as any)?.user_metadata?.avatar_url || undefined}
+                  />
                 </Link>
               </DropdownTrigger>
               <DropdownMenu
@@ -133,7 +158,6 @@ export const Navbar = () => {
           )}
         </NavbarItem>
       </NavbarContent>
-
     </HeroUINavbar>
   );
 };

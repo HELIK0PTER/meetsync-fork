@@ -13,7 +13,10 @@ export default function SignupPage() {
   const [passwordError, setPasswordError] = useState<string>("");
   const router = useRouter();
 
-  const validatePassword = (password: string, confirmPassword: string): string => {
+  const validatePassword = (
+    password: string,
+    confirmPassword: string,
+  ): string => {
     if (password !== confirmPassword) {
       return "Les mots de passe ne correspondent pas";
     }
@@ -41,10 +44,10 @@ export default function SignupPage() {
     setPasswordError("");
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
-    const username = formData.get('username') as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+    const username = formData.get("username") as string;
 
     const passwordValidationError = validatePassword(password, confirmPassword);
     if (passwordValidationError) {
@@ -57,7 +60,7 @@ export default function SignupPage() {
       password,
       options: {
         data: {
-          full_name: username
+          full_name: username,
         },
       },
     });

@@ -5,7 +5,7 @@ import { CardBody } from "@heroui/react";
 import { Card } from "@heroui/react";
 import { title, subtitle } from "@/components/primitives";
 import React from "react";
-import {useUser} from "@/lib/UserContext";
+import { useUser } from "@/lib/UserContext";
 
 interface Feature {
   text: string;
@@ -63,7 +63,7 @@ const PlansSection = () => {
     <>
       <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="text-center space-y-4 max-w-3xl mx-auto px-4">
-          <h2  className={title({ color: "violet", size: "md" })}>
+          <h2 className={title({ color: "violet", size: "md" })}>
             Quand vous devrez aller plus loin
           </h2>
           <p className="text-lg">
@@ -73,8 +73,8 @@ const PlansSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-12 px-4 w-full max-w-7xl">
           {PLANS.map((plan, index) => (
-            <Card 
-              key={index} 
+            <Card
+              key={index}
               className={`relative transform transition-all duration-300 hover:scale-105 hover:shadow-xl py-6 max-w-md mx-auto w-full
                 ${plan.name === "Plus" ? "border-2 border-purple-500 shadow-lg" : "border border-gray-200"}`}
             >
@@ -83,35 +83,56 @@ const PlansSection = () => {
                 <div className="flex items-baseline justify-center">
                   <span className="text-5xl font-extrabold">{plan.price}</span>
                   {plan.period && (
-                    <span className="text-xl text-gray-600 ml-1">{plan.period}</span>
+                    <span className="text-xl text-gray-600 ml-1">
+                      {plan.period}
+                    </span>
                   )}
                 </div>
               </CardHeader>
               <CardBody className="px-6 py-8">
                 <ul className="space-y-4">
                   {plan.features.map((feature, featureIndex) => (
-                    <li 
+                    <li
                       key={featureIndex}
                       className="flex items-start space-x-3 text-base"
                     >
                       <span
                         className={`flex-shrink-0 h-6 w-6 rounded-full flex items-center justify-center
-                          ${feature.included 
-                            ? "bg-purple-100 text-purple-600" 
-                            : "bg-gray-100 text-gray-400"}`}
+                          ${
+                            feature.included
+                              ? "bg-purple-100 text-purple-600"
+                              : "bg-gray-100 text-gray-400"
+                          }`}
                       >
-                        {feature.included 
-                          ? (
-                            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          ) : (
-                            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                          )}
+                        {feature.included ? (
+                          <svg
+                            className="h-5 w-5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            className="h-5 w-5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
                       </span>
-                      <span className={`text-base ${feature.included ? "" : "text-gray-500"}`}>
+                      <span
+                        className={`text-base ${feature.included ? "" : "text-gray-500"}`}
+                      >
                         {feature.text}
                       </span>
                     </li>
@@ -120,15 +141,17 @@ const PlansSection = () => {
               </CardBody>
               <CardFooter className="px-6">
                 <Button
-                    className={`w-full py-4 text-base font-semibold shadow-sm transition-all duration-200
-      ${plan.name === "Plus"
-                        ? "bg-purple-600 text-white hover:bg-purple-700"
-                        : "bg-white text-purple-600 border-2 border-purple-600 hover:bg-purple-50"}`}
-                    isDisabled={!user}
+                  className={`w-full py-4 text-base font-semibold shadow-sm transition-all duration-200
+      ${
+        plan.name === "Plus"
+          ? "bg-purple-600 text-white hover:bg-purple-700"
+          : "bg-white text-purple-600 border-2 border-purple-600 hover:bg-purple-50"
+      }`}
+                  isDisabled={!user}
                 >
                   {plan.hasTrial
-                      ? `Commencer l'essai gratuit de 30 jours`
-                      : `Choisir ${plan.name}`}
+                    ? `Commencer l'essai gratuit de 30 jours`
+                    : `Choisir ${plan.name}`}
                 </Button>
               </CardFooter>
             </Card>
