@@ -5,6 +5,7 @@ import { CardBody } from "@heroui/react";
 import { Card } from "@heroui/react";
 import { title, subtitle } from "@/components/primitives";
 import React from "react";
+import {useUser} from "@/lib/UserContext";
 
 interface Feature {
   text: string;
@@ -57,6 +58,7 @@ const PLANS: Plan[] = [
 ];
 
 const PlansSection = () => {
+  const { user, loading } = useUser();
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
@@ -117,15 +119,16 @@ const PlansSection = () => {
                 </ul>
               </CardBody>
               <CardFooter className="px-6">
-                <Button 
-                  className={`w-full py-4 text-base font-semibold shadow-sm transition-all duration-200
-                    ${plan.name === "Plus"
-                      ? "bg-purple-600 text-white hover:bg-purple-700"
-                      : "bg-white text-purple-600 border-2 border-purple-600 hover:bg-purple-50"}`}
+                <Button
+                    className={`w-full py-4 text-base font-semibold shadow-sm transition-all duration-200
+      ${plan.name === "Plus"
+                        ? "bg-purple-600 text-white hover:bg-purple-700"
+                        : "bg-white text-purple-600 border-2 border-purple-600 hover:bg-purple-50"}`}
+                    isDisabled={!user}
                 >
-                  {plan.hasTrial 
-                    ? `Commencer l'essai gratuit de 30 jours`
-                    : `Choisir ${plan.name}`}
+                  {plan.hasTrial
+                      ? `Commencer l'essai gratuit de 30 jours`
+                      : `Choisir ${plan.name}`}
                 </Button>
               </CardFooter>
             </Card>
