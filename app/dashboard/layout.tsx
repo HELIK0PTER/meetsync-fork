@@ -35,7 +35,7 @@ export default function RootLayout({
     "text-xl text-default-500 pointer-events-none flex-shrink-0";
   return (
     <div className="layout">
-      <Card className="left-0 top-0 float-left w-64 min-h-screen p-4 flex flex-col justify-between">
+      <Card className="absolute left-0 top-0 float-left w-64 min-h-screen p-4 flex flex-col justify-between">
         {/* Logo */}
         <div>
           <Link color="foreground" href="/">
@@ -71,7 +71,7 @@ export default function RootLayout({
               Mes invitations
             </Link>
             <Link
-              href="/dashboard/create"
+              href="/dashboard/my_event"
               color="foreground"
               className="flex items-center gap-2 p-2"
               isBlock
