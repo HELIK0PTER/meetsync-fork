@@ -40,8 +40,8 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <div className="relative flex flex-col items-center h-screen">
-            <main className="container flex-1">{children}</main>
+          <div className="relative flex flex-col items-center h-screen w-full">
+            <main className="flex-1 w-full">{children}</main>
             <Footer />
           </div>
         </Providers>

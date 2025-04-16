@@ -6,7 +6,7 @@ import { subtitle, title } from "@/components/primitives";
 
 export default function Dashboard() {
   return (
-    <div className="flex items-center justify-center m-auto  w-full h-full min-h-screen">
+    <div className="flex items-center justify-center h-full min-h-screen">
       <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="inline-block max-w-xl text-center justify-center">
           <span className={title()}>Bienvenue sur&nbsp;</span>

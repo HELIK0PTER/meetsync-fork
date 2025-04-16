@@ -28,7 +28,7 @@ export default async function RootLayout({
   }
 
   return (
-    <div className="layout">
+    <div>
       <Card className="sticky left-0 top-0 float-left w-64 min-h-screen p-4 flex flex-col justify-between">
         {/* Logo */}
         <div>
@@ -87,7 +87,7 @@ export default async function RootLayout({
           <AuthButton />
         </div>
       </Card>
-      <main className="ml-72 p-6 w-full">{children}</main>
+      <main className="ml-72 p-6 flex-1">{children}</main>
     </div>
   );
 }

@@ -38,6 +38,7 @@ export const Navbar = () => {
   return (
     <HeroUINavbar
       isBordered
+      className="w-full"
     >
       <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
