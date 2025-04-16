@@ -2,14 +2,10 @@ import "./globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
-import { Providers } from "./providers";
-
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { UserProvider } from "@/lib/UserContext";
-import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { AppWrapper } from "@/components/AppWrapper";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: {
@@ -35,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="fr">
+    <html suppressHydrationWarning lang="fr" className="scroll-smooth">
       <head />
       <body
         className={clsx(
@@ -43,17 +39,12 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <UserProvider>
-          <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-            <div className="relative flex flex-col items-center h-screen">
-              <Navbar />
-              <main className="container flex-1">
-                <AppWrapper>{children}</AppWrapper>
-              </main>
-              <Footer />
-            </div>
-          </Providers>
-        </UserProvider>
+        <Providers>
+          <div className="relative flex flex-col items-center h-screen">
+            <main className="container flex-1">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );

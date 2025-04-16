@@ -1,16 +1,11 @@
-"use client";
-
-import { Link } from "@heroui/link";
-import { button as buttonStyles } from "@heroui/theme";
-import { Spacer } from "@heroui/react";
 import { Image } from "@heroui/image";
-import { Card } from "@heroui/react";
+import { Card, CardBody } from "@heroui/card";
 
-import PlansSection from "./PlansSection";
+import PlansSection from "../PlansSection";
+import HeroCTA from "../HeroCTA";
+
 import TestimonialsSlider from "@/components/TestimonialsSlider";
-
 import { title, subtitle } from "@/components/primitives";
-import { useUser } from "@/lib/UserContext";
 
 const features = [
   {
@@ -34,7 +29,6 @@ const features = [
 ];
 
 export default function Home() {
-  const { user, loading } = useUser();
   return (
     <section className="w-full">
       {/* Hero Section */}
@@ -62,7 +56,7 @@ export default function Home() {
                       sécurisée
                     </span>
                   </div>
-                  <div></div>
+                  <div />
                 </h1>
                 <p
                   className={subtitle({
@@ -73,31 +67,7 @@ export default function Home() {
                   gestion flexible et intuitive.
                 </p>
                 <div className="mt-10 flex items-center justify-center lg:justify-start gap-4">
-                  {user ? (
-                    <Link
-                      href="/dashboard"
-                      className={buttonStyles({
-                        color: "secondary",
-                        radius: "full",
-                        variant: "shadow",
-                        size: "lg",
-                      })}
-                    >
-                      Tableau de bord
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/auth/login"
-                      className={buttonStyles({
-                        color: "secondary",
-                        radius: "full",
-                        variant: "shadow",
-                        size: "lg",
-                      })}
-                    >
-                      Commencer gratuitement
-                    </Link>
-                  )}
+                  <HeroCTA />
                 </div>
               </div>
             </div>
@@ -120,7 +90,8 @@ export default function Home() {
               Tout ce dont vous avez besoin
             </h2>
             <p className={subtitle({ class: "mt-6" })}>
-              Une suite complète d'outils pour gérer vos événements efficacement
+              Une suite complète d&apos;outils pour gérer vos événements
+              efficacement
             </p>
           </div>
           <div className="mx-auto mt-16 max-w-7xl">
@@ -130,7 +101,7 @@ export default function Home() {
                   key={index}
                   className="group p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="relative">
+                  <CardBody className="relative">
                     <Image
                       src={feature.image}
                       alt={feature.title}
@@ -142,7 +113,7 @@ export default function Home() {
                       {feature.title}
                     </h3>
                     <p className="text-gray-600">{feature.description}</p>
-                  </div>
+                  </CardBody>
                 </Card>
               ))}
             </div>

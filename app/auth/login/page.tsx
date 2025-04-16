@@ -1,28 +1,37 @@
 "use client";
 
-import { Link } from "@heroui/link";
+import { NewLink } from "@/components/ui/link";
 import { Form, Input, Button } from "@heroui/react";
 import React, { useState } from "react";
-import { supabase } from "../../../lib/supabase"; // Assurez-vous d'avoir configuré Supabase
-import { GoogleIcon } from "../../../components/icons";
+
+import { GoogleIcon } from "@/components/icons";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SignupPage() {
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const supabase = createClient();
+
   // Connexion avec email et mot de passe
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage(null);
+    setErrorMessage("");
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email");
     const password = formData.get("password");
 
+    if (!email || !password) {
+      setErrorMessage("Merci d'entrer un email et un mot de passe");
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: email as string,
+      password: password as string,
     });
 
     if (error) {
@@ -37,7 +46,7 @@ export default function SignupPage() {
   // Connexion avec Google
   const signInWithGoogle = async () => {
     setLoading(true);
-    setErrorMessage(null);
+    setErrorMessage("");
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -81,9 +90,9 @@ export default function SignupPage() {
 
       <p>
         Vous n'avez pas de compte ?{" "}
-        <Link color="secondary" href="/auth/signup">
+        <NewLink color="secondary" href="/auth/signup">
           Inscription
-        </Link>
+        </NewLink>
       </p>
 
       <div className="flex gap-2">

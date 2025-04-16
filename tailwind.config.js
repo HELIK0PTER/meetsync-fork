@@ -1,6 +1,7 @@
 import { heroui } from "@heroui/theme";
 
 /** @type {import('tailwindcss').Config} */
+
 const config = {
   content: [
     "./components/**/*.{js,ts,jsx,tsx,mdx}",

@@ -1,24 +1,14 @@
-"use client"; // Si tu es en mode App Router (Next.js 13+)
+import { redirect } from "next/navigation";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation"; // Next.js 13+ -> `next/navigation` / Next.js 12 -> `next/router`
-import { supabase } from "../../../lib/supabase";
+import { createClient } from "@/utils/supabase/server";
 
-export default function LogoutPage() {
-  const router = useRouter();
+export default async function LogoutPage() {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
 
-  useEffect(() => {
-    const logout = async () => {
-      await supabase.auth.signOut(); // Déconnexion de Supabase
-      router.push("/auth/login"); // Redirection vers la page de connexion
-    };
+  if (error) {
+    return <div>Erreur lors de la déconnexion: {error.message}</div>;
+  }
 
-    logout();
-  }, [router]);
-
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <p className="text-xl">Déconnexion en cours...</p>
-    </div>
-  );
+  redirect("/auth/login?logout=true");
 }

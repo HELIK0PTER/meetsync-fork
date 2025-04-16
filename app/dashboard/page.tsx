@@ -1,8 +1,8 @@
-import { subtitle, title } from "@/components/primitives";
 import { Link } from "@heroui/link";
-import { siteConfig } from "@/config/site";
 import { button as buttonStyles } from "@heroui/theme";
 import { CiCirclePlus } from "react-icons/ci";
+
+import { subtitle, title } from "@/components/primitives";
 
 export default function Dashboard() {
   return (

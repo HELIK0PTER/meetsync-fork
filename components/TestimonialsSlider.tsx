@@ -1,6 +1,7 @@
 import React from "react";
-import { Card, CardBody, Avatar, Chip } from "@heroui/react";
-import { motion } from "framer-motion";
+import { Card, CardBody } from "@heroui/card";
+import { Avatar } from "@heroui/avatar";
+import { Chip } from "@heroui/chip";
 
 type Plan = "Basic" | "Plus" | "Pro";
 
@@ -58,10 +59,10 @@ const planColors: Record<Plan, "default" | "secondary" | "primary"> = {
   Pro: "primary",
 };
 
-export default function TestimonialsSlider() {
+export default async function TestimonialsSlider() {
   return (
     <div className="relative overflow-hidden w-full py-10">
-      <div className="flex gap-4 md:gap-8 animate-scroll">
+      <div className="flex gap-4 md:gap-8 animate-scroll ">
         {[...testimonials, ...testimonials].map((testimonial, index) => (
           <Card
             key={`${testimonial.id}-${index}`}

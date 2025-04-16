@@ -1,92 +1,43 @@
-"use client";
-
 import React from "react";
 import {
   Navbar as HeroUINavbar,
   NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
   NavbarBrand,
   NavbarItem,
-  NavbarMenuItem,
 } from "@heroui/navbar";
-import { Button } from "@heroui/button";
-import { Link } from "@heroui/link";
-import { Avatar } from "@heroui/avatar";
-import {
-  cn,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-} from "@heroui/react";
-import { usePathname } from "next/navigation";
-import { MdOutlineDashboard } from "react-icons/md";
-import { FiLogOut } from "react-icons/fi";
+import { NewLink } from "@/components/ui/link";
 
-import { useUser } from "../lib/UserContext";
-import type { User } from "@supabase/supabase-js";
-
-type NavLinkColor =
-  | "secondary"
-  | "foreground"
-  | "primary"
-  | "success"
-  | "warning"
-  | "danger"
-  | undefined;
+import AuthButton from "@/components/auth-button";
 
 type MenuItem = {
   name: string;
   href: string;
-  color: NavLinkColor;
-};
-
-type UserContextType = {
-  user: User | null;
-  loading: boolean;
 };
 
 export const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const iconClasses =
-    "text-xl text-default-500 pointer-events-none flex-shrink-0";
-
-  const pathname = usePathname();
-  const userContext = useUser();
-  const { user, loading } = userContext || { user: null, loading: false };
-  const isDashboard = pathname.startsWith("/dashboard");
 
   const menuItems: MenuItem[] = [
     {
       name: "Accueil",
-      href: "/",
-      color: pathname === "/" ? "secondary" : "foreground",
+      href: "/#top",
     },
     {
       name: "Fonctionnalités",
       href: "/#product",
-      color: pathname === "/product" ? "secondary" : "foreground",
     },
     {
       name: "Avis",
       href: "/#review",
-      color: pathname === "/#review" ? "secondary" : "foreground",
     },
     {
       name: "Plans",
       href: "/#plans",
-      color: pathname === "/#plans" ? "secondary" : "foreground",
     },
   ];
-
-  if (isDashboard) return null;
 
   return (
     <HeroUINavbar
       isBordered
-      isMenuOpen={isMenuOpen}
-      onMenuOpenChange={setIsMenuOpen}
     >
       <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
@@ -96,66 +47,23 @@ export const Navbar = () => {
 
       <NavbarContent className="hidden sm:flex gap-4" justify="start">
         <NavbarBrand>
-          <p className="font-bold text-2xl text-inherit">MEETSYNC</p>
+          <NewLink href="/#" className="font-bold text-2xl text-inherit">MEETSYNC</NewLink>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {menuItems.map((item) => (
-          <NavbarItem key={item.name} isActive={pathname === item.href}>
-            <Link color={item.color} href={item.href}>
+          <NavbarItem key={item.name}>
+            <NewLink color={"foreground"} href={item.href}>
               {item.name}
-            </Link>
+            </NewLink>
           </NavbarItem>
         ))}
       </NavbarContent>
 
       <NavbarContent justify="end">
         <NavbarItem>
-          {user ? (
-            <Dropdown>
-              <DropdownTrigger>
-                <Link>
-                  <Avatar
-                    isBordered
-                    src={(user as any)?.user_metadata?.avatar_url || undefined}
-                  />
-                </Link>
-              </DropdownTrigger>
-              <DropdownMenu
-                aria-label="Dropdown menu with icons"
-                variant="faded"
-              >
-                <DropdownItem
-                  key="new"
-                  href="/dashboard"
-                  startContent={<MdOutlineDashboard className={iconClasses} />}
-                >
-                  Tableau de bord
-                </DropdownItem>
-                <DropdownItem
-                  key="delete"
-                  className="text-danger"
-                  color="danger"
-                  href="/auth/logout"
-                  startContent={
-                    <FiLogOut className={cn(iconClasses, "text-danger")} />
-                  }
-                >
-                  Déconnection
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          ) : (
-            <Button
-              as={Link}
-              color="secondary"
-              href="/auth/login"
-              variant="flat"
-            >
-              Commencer
-            </Button>
-          )}
+          <AuthButton />
         </NavbarItem>
       </NavbarContent>
     </HeroUINavbar>

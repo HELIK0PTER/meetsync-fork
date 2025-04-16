@@ -1,44 +1,67 @@
 "use client";
+
+import { Button } from "@heroui/button";
 import {
-  Button,
-  Card,
-  CardFooter,
-  Form,
-  Image,
-  Input,
-  Spacer,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-  useDisclosure,
-} from "@heroui/react";
-import { useUser } from "@/lib/UserContext";
+} from "@heroui/modal";
+import { useDisclosure } from "@heroui/use-disclosure";
+import { Spacer } from "@heroui/spacer";
+
+import { Form, Input } from "@heroui/react";
 import { Divider } from "@heroui/divider";
-import { CardBody, CardHeader } from "@heroui/card";
-import { Link } from "@heroui/link";
+import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Avatar } from "@heroui/avatar";
-import { useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
+
 export default function Dashboard() {
-  const { user, loading } = useUser();
+  const supabase = createClient();
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      return data.user;
+    };
+
+    const fetchProfile = async () => {
+      const user = await fetchUser()
+      const { data : profile, } = await supabase.from("profiles").select("*").eq("id", user?.id).single();
+      return { user, profile };
+    };
+    fetchProfile().then(({ user, profile }) => {
+      setUser(user);
+      setProfile(profile);
+    });
+  }, []);
+
+  if (!user || !profile) {
+    return null;
+  }
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
   const handleAvatarChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     try {
       setUploading(true);
@@ -144,7 +167,7 @@ export default function Dashboard() {
               `
             *,
             meeting:meetings(*)
-          `,
+          `
             )
             .eq("user_id", user.id);
 
@@ -173,7 +196,7 @@ export default function Dashboard() {
       alert(
         error instanceof Error
           ? error.message
-          : "Erreur lors de l'export des données",
+          : "Erreur lors de l'export des données"
       );
     } finally {
       setExporting(false);
@@ -220,7 +243,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-row p-10 flex-wrap gap-16 items-center justify-center">
+    <div className="flex-1 flex flex-row p-10 flex-wrap gap-16 items-center justify-center">
       <div className="flex flex-col w-1/3 gap-4">
         <Card className="max-w-[400px]">
           <CardHeader className="flex gap-3">
@@ -251,10 +274,10 @@ export default function Dashboard() {
           <Divider />
           <CardBody>
             <p>Type de compte :</p>
-            {renderAccountTypeChip(user.account_type)}
+            {renderAccountTypeChip(profile.account_type)}
             <Spacer y={2} />
             <p>Renouvellement :</p>
-            {renderRenewType(user.renew_type)}
+            {renderRenewType(profile.renew_type)}
             <Spacer y={2} />
             <p>Date de Création :</p>
             <Chip color="default"> {formatDate(user.created_at)} </Chip>
