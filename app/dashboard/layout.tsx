@@ -3,7 +3,7 @@ import { Card } from "@heroui/card";
 import { NewLink as Link } from "@/components/ui/link";
 import { Divider } from "@heroui/divider";
 import React from "react";
-import { MdEvent, MdOutlineDashboard, MdEventRepeat } from "react-icons/md";
+import { MdOutlineDashboard, MdEvent, MdEventRepeat } from "react-icons/md";
 import { FaRegCalendarPlus } from "react-icons/fa";
 import { SlEnvolopeLetter } from "react-icons/sl";
 import { redirect } from "next/navigation";
@@ -32,8 +32,8 @@ export default async function RootLayout({
       <Card className="sticky left-0 top-0 float-left w-64 min-h-screen p-4 flex flex-col justify-between">
         {/* Logo */}
         <div>
-          <Link color="foreground" href="/">
-            <h1 className="text-xl font-bold mb-6">MeetSync</h1>
+          <Link color="foreground" href="/" className="inline-block mb-8">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">MeetSync</h1>
           </Link>
 
           <nav className="flex flex-col gap-2">
@@ -42,7 +42,7 @@ export default async function RootLayout({
               color="foreground"
               className="flex items-center gap-2 p-2"
             >
-              <MdOutlineDashboard className="text-lg" />
+              <MdOutlineDashboard className="text-xl" />
               Tableau de bord
             </Link>
             <Link
@@ -50,7 +50,7 @@ export default async function RootLayout({
               color="foreground"
               className="flex items-center gap-2 p-2"
             >
-              <FaRegCalendarPlus className="text-lg" />
+              <FaRegCalendarPlus className="text-xl" />
               Créer un événement
             </Link>
             <Link
@@ -58,7 +58,7 @@ export default async function RootLayout({
               color="foreground"
               className="flex items-center gap-2 p-2"
             >
-              <SlEnvolopeLetter className="text-lg" />
+              <SlEnvolopeLetter className="text-xl" />
               Mes invitations
             </Link>
             <Link
@@ -66,15 +66,15 @@ export default async function RootLayout({
               color="foreground"
               className="flex items-center gap-2 p-2"
             >
-              <MdEvent className="text-lg" />
+              <MdEvent className="text-xl" />
               Mes événements
             </Link>
             <Link
-              href="/dashboard/create"
+              href="/dashboard/all_event"
               color="foreground"
               className="flex items-center gap-2 p-2"
             >
-              <MdEventRepeat className="text-lg" />
+              <MdEventRepeat className="text-xl" />
               Tous les événements
             </Link>
           </nav>
@@ -87,7 +87,7 @@ export default async function RootLayout({
           <AuthButton />
         </div>
       </Card>
-      <main className="ml-64">{children}</main>
+      <main className="ml-72 p-6 w-full">{children}</main>
     </div>
   );
 }
