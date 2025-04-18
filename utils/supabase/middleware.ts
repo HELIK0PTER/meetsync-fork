@@ -34,6 +34,15 @@ export async function updateSession(request: NextRequest) {
   // issues with users being randomly logged out.
 
   // Let go if we are on the landing page
+
+  // Check for redirects after login
+  const url = request.nextUrl;
+  const redirect = url.searchParams.get("redirect");
+
+  if (redirect && !request.nextUrl.pathname.startsWith("/auth")) {
+    return NextResponse.redirect(redirect);
+  }
+
   if (request.nextUrl.pathname === "/") {
     return supabaseResponse;
   }
@@ -52,7 +61,8 @@ export async function updateSession(request: NextRequest) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
 
-    url.pathname = "/auth/login";
+    url.searchParams.set('redirect', url.toString());
+    url.pathname = `/auth/login`;
 
     return NextResponse.redirect(url);
   }

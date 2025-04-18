@@ -154,7 +154,7 @@ export default function MesInvitationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-6">
+    <>
       {/* Header */}
       <div
         className="mb-8 opacity-0 animate-fadeIn"
@@ -432,6 +432,6 @@ export default function MesInvitationsPage() {
               animation: floatingParticle 3s infinite;
           }
       `}</style>
-    </div>
+    </>
   );
 }

@@ -2,14 +2,23 @@
 
 import { NewLink } from "@/components/ui/link";
 import { Form, Input, Button } from "@heroui/react";
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 
 import { GoogleIcon } from "@/components/icons";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
-export default function SignupPage() {
+export default function SignupPage({
+  searchParams,
+}: {
+  searchParams: { redirect: string };
+}) {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  // @ts-ignore
+  const { redirect } = use(searchParams);
 
   const supabase = createClient();
 
@@ -37,7 +46,7 @@ export default function SignupPage() {
     if (error) {
       setErrorMessage(error.message);
     } else {
-      window.location.href = "/dashboard"; // Redirection après connexion
+      router.push("/dashboard");
     }
 
     setLoading(false);
@@ -50,6 +59,9 @@ export default function SignupPage() {
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
+      },
     });
 
     if (error) {

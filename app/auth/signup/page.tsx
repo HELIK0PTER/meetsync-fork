@@ -1,17 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation"; // Next.js 13+ / `next/router` pour Next.js 12
 import { Link } from "@heroui/link";
 import { Form, Input, Button } from "@heroui/react";
-
-import { supabase } from "@/lib/supabase";
 import { GoogleIcon } from "@/components/icons";
 
-export default function SignupPage() {
+import { createClient } from "@/utils/supabase/client";
+
+export default function SignupPage(
+  {
+    searchParams,
+  }: {
+    searchParams: { redirect: string };
+  }
+) {
   const [error, setError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string>("");
   const router = useRouter();
+  const supabase = createClient();
+
+  // @ts-ignore
+  const { redirect } = use(searchParams);
 
   const validatePassword = (
     password: string,
@@ -32,7 +42,7 @@ export default function SignupPage() {
     if (!/[0-9]/.test(password)) {
       return "Le mot de passe doit contenir au moins un chiffre";
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    if (!/[!@#$%^&*(),.?":{}|<>-_]+/.test(password)) {
       return "Le mot de passe doit contenir au moins un symbole";
     }
     return "";
@@ -62,6 +72,7 @@ export default function SignupPage() {
         data: {
           full_name: username,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
       },
     });
 

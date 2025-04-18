@@ -1,6 +1,6 @@
 "use client";
 
-import { subtitle, title } from "@/components/primitives";
+import { title } from "@/components/primitives";
 import {
   Button,
   DatePicker,
@@ -8,19 +8,50 @@ import {
   Input,
   Spacer,
   Checkbox,
+  user,
 } from "@heroui/react";
 import React from "react";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import { Divider } from "@heroui/divider";
 import { I18nProvider } from "@react-aria/i18n";
 
+import { createClient } from "@/utils/supabase/client";
+
 export default function Dashboard() {
   const [action, setAction] = React.useState<string | null>(null);
   const [isPaid, setIsPaid] = React.useState(false);
   const [price, setPrice] = React.useState("");
   const [paypalEmail, setPaypalEmail] = React.useState("");
-  const [isReminderDisabled, setIsReminderDisabled] = React.useState(true);
+  const [hasReminder, setHasReminder] = React.useState(false);
   const [isEmailDisabled, setIsEmailDisabled] = React.useState(true);
+
+  const [userId, setUserId] = React.useState<any>(null);
+
+  const supabase = createClient();
+
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      return user;
+    };
+    fetchUser().then((user) => {
+      if (user) {
+        setUserId(user.id);
+      } else {
+        setUserId(null);
+      }
+    });
+  }, [supabase]);
+
+  if (!userId) {
+    return (
+      <div className="flex flex-col items-center justify-center m-auto  w-full pb-10 h-full pt-10 min-h-screen">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const checked = event.target.checked;
@@ -28,6 +59,28 @@ export default function Dashboard() {
     if (!checked) {
       setPrice("");
       setPaypalEmail("");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let data = Object.fromEntries(new FormData(e.currentTarget));
+    console.log(data);
+
+    const { error } = await supabase.from("event").insert({
+      event_name: data.event_name,
+      event_date: data.event_date.toString().split("T")[0],
+      country: data.country,
+      city: data.city,
+      rue: data.rue,
+      price: data.price,
+      paypal_email: data.paypal_email,
+      owner_id: userId,
+      has_reminder: hasReminder,
+    });
+
+    if (error) {
+      console.error(error);
     }
   };
 
@@ -40,20 +93,15 @@ export default function Dashboard() {
       <Form
         className="w-full max-w-xs flex flex-col gap-4"
         onReset={() => setAction("reset")}
-        onSubmit={(e) => {
-          e.preventDefault();
-          let data = Object.fromEntries(new FormData(e.currentTarget));
-
-          setAction(`submit ${JSON.stringify(data)}`);
-        }}
+        onSubmit={handleSubmit}
       >
         <Input
           isRequired
-          errorMessage="Merci d'entrer un nom d'événements valide"
+          errorMessage="Merci d'entrer un nom d'événement valide"
           label="Nom de l'événement"
           labelPlacement="outside"
-          name="username"
-          placeholder="Entré le nom de l'événements"
+          name="event_name"
+          placeholder="Entrer le nom de l'événement"
           type="text"
         />
 
@@ -63,6 +111,7 @@ export default function Dashboard() {
             showMonthAndYearPickers
             defaultValue={now(getLocalTimeZone())}
             label="date de l'événéments"
+            name="event_date"
             variant="bordered"
           />
         </I18nProvider>
@@ -74,7 +123,7 @@ export default function Dashboard() {
           errorMessage="Merci d'entrer un nom d'événements valide"
           label="Pays"
           labelPlacement="outside"
-          name="pays"
+          name="country"
           placeholder="Entré le pays de l'événement"
           type="text"
         />
@@ -84,7 +133,7 @@ export default function Dashboard() {
           errorMessage="Merci d'entrer un nom d'événements valide"
           label="Ville"
           labelPlacement="outside"
-          name="ville"
+          name="city"
           placeholder="Entrer le nom de la ville"
           type="text"
         />
@@ -94,7 +143,7 @@ export default function Dashboard() {
           errorMessage="Merci d'entrer un nom d'événements valide"
           label="Rue"
           labelPlacement="outside"
-          name="username"
+          name="rue"
           placeholder="Entrer le nom de la rue et le numéro"
           type="text"
         />
@@ -113,7 +162,7 @@ export default function Dashboard() {
               errorMessage="Merci d'entrer un prix valide"
               label="Prix"
               labelPlacement="outside"
-              name="prix"
+              name="price"
               placeholder="Entrer le prix de l'événement"
               type="number"
               value={price}
@@ -124,7 +173,7 @@ export default function Dashboard() {
               errorMessage="Merci d'entrer un email PayPal valide"
               label="Email PayPal"
               labelPlacement="outside"
-              name="paypalEmail"
+              name="paypal_email"
               placeholder="Entrer l'email PayPal du vendeur"
               type="email"
               value={paypalEmail}
@@ -134,8 +183,7 @@ export default function Dashboard() {
         )}
 
         <Checkbox
-          isDisabled={isReminderDisabled}
-          onClick={() => setIsReminderDisabled(!isReminderDisabled)}
+          onClick={() => setHasReminder(!hasReminder)}
         >
           Rappel automatique
         </Checkbox>

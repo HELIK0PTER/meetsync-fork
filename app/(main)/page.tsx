@@ -1,8 +1,8 @@
 import { Image } from "@heroui/image";
 import { Card, CardBody } from "@heroui/card";
 
-import PlansSection from "../PlansSection";
-import HeroCTA from "../HeroCTA";
+import PlansSection from "./PlansSection";
+import HeroCTA from "./HeroCTA";
 
 import TestimonialsSlider from "@/components/TestimonialsSlider";
 import { title, subtitle } from "@/components/primitives";
