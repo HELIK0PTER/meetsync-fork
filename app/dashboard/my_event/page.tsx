@@ -4,98 +4,87 @@
 import { Card } from "@heroui/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 // Définition du type pour les événements
 type Event = {
-  id: number;
-  title: string;
-  date: string;
-  attendees: number;
+  id: string;
+  event_name: string;
+  event_date: string;
+  country: string;
+  city: string;
+  rue: string;
+  price: number | null;
+  owner_id: string;
+  has_reminder: boolean;
   animationDelay?: number;
 };
 
-// Liste de 10 événements factices pour l'exemple
-const dummyEvents: Event[] = [
-  {
-    id: 1,
-    title: "Tech Conference 2023",
-    date: "12/05/2023",
-    attendees: 100,
-  },
-  {
-    id: 2,
-    title: "Product Launch: NextGen",
-    date: "01/15/2024",
-    attendees: 150,
-  },
-  {
-    id: 3,
-    title: "Annual Team Retreat",
-    date: "05/12/2023",
-    attendees: 50,
-  },
-  {
-    id: 4,
-    title: "Developer Workshop",
-    date: "03/22/2024",
-    attendees: 75,
-  },
-  {
-    id: 5,
-    title: "UX Design Summit",
-    date: "06/10/2024",
-    attendees: 120,
-  },
-  {
-    id: 6,
-    title: "Hackathon 2024",
-    date: "04/05/2024",
-    attendees: 200,
-  },
-  {
-    id: 7,
-    title: "AI Conference",
-    date: "07/18/2024",
-    attendees: 180,
-  },
-  {
-    id: 8,
-    title: "Startup Networking",
-    date: "08/30/2024",
-    attendees: 90,
-  },
-  {
-    id: 9,
-    title: "Cloud Summit 2024",
-    date: "09/15/2024",
-    attendees: 135,
-  },
-  {
-    id: 10,
-    title: "Tech Hiring Fair",
-    date: "10/22/2024",
-    attendees: 250,
-  },
-];
-
 export default function MesEvenementsPage() {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeEvents, setActiveEvents] = useState<Event[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // Animation d'entrée lors du chargement de la page
+  const supabase = createClient();
+
+  // Récupération de l'utilisateur connecté
   useEffect(() => {
-    const eventsWithDelay = dummyEvents.map((event, index) => ({
-      ...event,
-      animationDelay: index * 100,
-    }));
-    setActiveEvents(eventsWithDelay);
-  }, []);
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Utilisateur connecté:', user);
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    fetchUser();
+  }, [supabase]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      if (!userId) return;
+
+      try {
+        const { data: userEvents, error: userEventsError } = await supabase
+          .from('event')
+          .select('*')
+          .eq('owner_id', userId)
+          .order('event_date', { ascending: true });
+
+        if (userEventsError) {
+          console.error('Erreur Supabase (événements utilisateur):', userEventsError);
+          throw userEventsError;
+        }
+
+        console.log('Événements de l\'utilisateur:', userEvents);
+        const eventsWithDelay = userEvents.map((event, index) => ({
+          ...event,
+          animationDelay: index * 100,
+        }));
+        setActiveEvents(eventsWithDelay);
+      } catch (error) {
+        console.error('Erreur lors du chargement des événements:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [userId, supabase]);
 
   // Filtrage des événements pour la recherche
   const filteredEvents = activeEvents.filter((event) =>
-    event.title.toLowerCase().includes(searchTerm.toLowerCase()),
+    event.event_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  if (!userId) {
+    return (
+      <div className="flex flex-col items-center justify-center m-auto w-full pb-10 h-full pt-10 min-h-screen">
+        <p>Chargement...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black p-6">
@@ -105,7 +94,7 @@ export default function MesEvenementsPage() {
         style={{ animationDelay: "200ms", animationFillMode: "forwards" }}
       >
         <h1 className="text-3xl font-bold text-white text-center mb-6">
-          Événements
+          Mes Événements
         </h1>
         <div className="relative max-w-md mx-auto">
           <input
@@ -134,126 +123,161 @@ export default function MesEvenementsPage() {
         </div>
       </div>
 
-      {/* Grille d'événements avec animations */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredEvents.map((event) => (
-          <Card
-            key={event.id}
-            className="overflow-hidden rounded-lg flex flex-col opacity-0 animate-slideUp cursor-pointer"
-            style={{
-              filter: "grayscale(100%)",
-              animationDelay: `${event.animationDelay}ms`,
-              animationFillMode: "forwards",
-              transform:
-                hoveredId === event.id ? "translateY(-8px)" : "translateY(0)",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              boxShadow:
-                hoveredId === event.id
-                  ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
-                  : "none",
-            }}
-            onMouseEnter={() => setHoveredId(event.id)}
-            onMouseLeave={() => setHoveredId(null)}
+      {/* Affichage du chargement */}
+      {isLoading && (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+
+      {/* Message si aucun événement trouvé */}
+      {!isLoading && filteredEvents.length === 0 && (
+        <div className="text-center text-gray-400 py-16">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mx-auto mb-4"
           >
-            {/* Zone 1: Photo avec effet pulsation */}
-            <div className="bg-neutral-800 h-36 flex items-center justify-center overflow-hidden relative">
-              <div
-                className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${
-                  hoveredId === event.id ? "animate-pulse" : ""
-                }`}
-              >
-                {hoveredId === event.id && (
-                  <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
-                )}
-                <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
-              </div>
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p className="text-xl">Aucun événement trouvé</p>
+          <p className="mt-2">Essayez de modifier vos critères de recherche</p>
+        </div>
+      )}
 
-              {/* Effet de particules lors du survol */}
-              {hoveredId === event.id && (
-                <div className="absolute inset-0 bg-neutral-800">
-                  {[...Array(20)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-1 h-1 bg-neutral-600 rounded-full animate-floatingParticle"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                        animationDuration: `${Math.random() * 2 + 2}s`,
-                        animationDelay: `${Math.random() * 2}s`,
-                        opacity: Math.random() * 0.5 + 0.1,
-                      }}
-                    ></div>
-                  ))}
+      {/* Grille d'événements avec animations */}
+      {!isLoading && filteredEvents.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredEvents.map((event) => (
+            <Card
+              key={event.id}
+              className="overflow-hidden rounded-lg flex flex-col animate-slideUp cursor-pointer"
+              style={{
+                filter: "grayscale(100%)",
+                animationDelay: `${event.animationDelay}ms`,
+                transform:
+                  hoveredId === event.id ? "translateY(-8px)" : "translateY(0)",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                boxShadow:
+                  hoveredId === event.id
+                    ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
+                    : "none",
+              }}
+              onMouseEnter={() => setHoveredId(event.id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              {/* Zone 1: Photo avec effet pulsation */}
+              <div className="bg-neutral-800 h-36 flex items-center justify-center overflow-hidden relative">
+                <div
+                  className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${
+                    hoveredId === event.id ? "animate-pulse" : ""
+                  }`}
+                >
+                  {hoveredId === event.id && (
+                    <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
+                  )}
+                  <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
                 </div>
-              )}
-            </div>
 
-            {/* Zone 2: Informations avec effet de survol */}
-            <div className="bg-neutral-900 p-5 flex-grow h-32 flex flex-col justify-center">
-              <h2
-                className="text-xl font-medium text-white mb-2 transition-all duration-300"
-                style={{
-                  transform:
-                    hoveredId === event.id
-                      ? "translateX(6px)"
-                      : "translateX(0)",
-                }}
-              >
-                {event.title}
-              </h2>
-              <p
-                className="text-sm text-gray-400 mb-1 transition-all duration-300"
-                style={{
-                  transform:
-                    hoveredId === event.id
-                      ? "translateX(3px)"
-                      : "translateX(0)",
-                }}
-              >
-                {event.date}
-              </p>
-              <p
-                className="text-sm text-gray-400 transition-all duration-300"
-                style={{
-                  transform:
-                    hoveredId === event.id
-                      ? "translateX(3px)"
-                      : "translateX(0)",
-                }}
-              >
-                {event.attendees} attendees
-              </p>
-            </div>
-
-            {/* Zone 3: View Details avec effet de glissement */}
-            <div className="bg-neutral-950 relative overflow-hidden group">
-              <div
-                className="absolute inset-0 bg-blue-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                style={{ transform: "skewX(-15deg) translateX(-10%)" }}
-              ></div>
-              <div className="p-3 text-center relative z-10">
-                <Link href={`/evenement/${event.id}`}>
-                  <button
-                    className={`text-sm transition-all duration-300 relative ${
-                      hoveredId === event.id
-                        ? "text-blue-400 font-medium"
-                        : "text-white"
-                    }`}
-                  >
-                    <span className="relative z-10">View Details</span>
-                    <span
-                      className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"
-                      style={{ opacity: hoveredId === event.id ? 1 : 0 }}
-                    ></span>
-                  </button>
-                </Link>
+                {/* Effet de particules lors du survol */}
+                {hoveredId === event.id && (
+                  <div className="absolute inset-0 bg-neutral-800">
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute w-1 h-1 bg-neutral-600 rounded-full animate-floatingParticle"
+                        style={{
+                          left: `${Math.random() * 100}%`,
+                          top: `${Math.random() * 100}%`,
+                          animationDuration: `${Math.random() * 2 + 2}s`,
+                          animationDelay: `${Math.random() * 2}s`,
+                          opacity: Math.random() * 0.5 + 0.1,
+                        }}
+                      ></div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          </Card>
-        ))}
-      </div>
 
-      {/* Styles pour les animations personnalisées */}
+              {/* Zone 2: Informations avec effet de survol */}
+              <div className="bg-neutral-900 p-5 flex-grow h-32 flex flex-col justify-center">
+                <h2
+                  className="text-xl font-medium text-white mb-2 transition-all duration-300"
+                  style={{
+                    transform:
+                      hoveredId === event.id
+                        ? "translateX(6px)"
+                        : "translateX(0)",
+                  }}
+                >
+                  {event.event_name}
+                </h2>
+                <p
+                  className="text-sm text-gray-400 mb-1 transition-all duration-300"
+                  style={{
+                    transform:
+                      hoveredId === event.id
+                        ? "translateX(3px)"
+                        : "translateX(0)",
+                  }}
+                >
+                  {new Date(event.event_date).toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                  })}
+                </p>
+                <p
+                  className="text-sm text-gray-400 transition-all duration-300"
+                  style={{
+                    transform:
+                      hoveredId === event.id
+                        ? "translateX(3px)"
+                        : "translateX(0)",
+                  }}
+                >
+                  {event.city}, {event.country}
+                </p>
+              </div>
+
+              {/* Zone 3: View Details avec effet de glissement */}
+              <div className="bg-neutral-950 relative overflow-hidden group">
+                <div
+                  className="absolute inset-0 bg-blue-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+                  style={{ transform: "skewX(-15deg) translateX(-10%)" }}
+                ></div>
+                <div className="p-3 text-center relative z-10">
+                  <Link href={`/dashboard/event/${event.id}`}>
+                    <button
+                      className={`text-sm transition-all duration-300 relative ${
+                        hoveredId === event.id
+                          ? "text-blue-400 font-medium"
+                          : "text-white"
+                      }`}
+                    >
+                      <span className="relative z-10">Voir les détails</span>
+                      <span
+                        className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"
+                        style={{ opacity: hoveredId === event.id ? 1 : 0 }}
+                      ></span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
       <style jsx global>{`
         @keyframes fadeIn {
           from {
@@ -275,38 +299,12 @@ export default function MesEvenementsPage() {
           }
         }
 
-        @keyframes ripple {
-          0% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-          100% {
-            transform: scale(2.5);
-            opacity: 0;
-          }
-        }
-
-        @keyframes floatingParticle {
-          0% {
-            transform: translateY(0) translateX(0);
-            opacity: 0;
-          }
-          50% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-40px)
-              translateX(${Math.random() > 0.5 ? "+" : "-"}20px);
-            opacity: 0;
-          }
-        }
-
         .animate-fadeIn {
           animation: fadeIn 0.8s ease-out;
         }
 
         .animate-slideUp {
-          animation: slideUp 0.8s ease-out;
+          animation: slideUp 0.8s ease-out forwards;
         }
 
         .animate-ripple {
