@@ -17,6 +17,8 @@ export default function SignupPage({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
   // @ts-ignore
   const { redirect } = use(searchParams);
 
@@ -46,7 +48,7 @@ export default function SignupPage({
     if (error) {
       setErrorMessage(error.message);
     } else {
-      router.push("/dashboard");
+      router.push(redirect || "/dashboard");
     }
 
     setLoading(false);
@@ -60,7 +62,7 @@ export default function SignupPage({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || `${baseUrl}/dashboard`}`, // Redirige vers le dashboard (attention avec le / dans le lien qui est transformé en %2F)
       },
     });
 

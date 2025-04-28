@@ -8,24 +8,24 @@ import { GoogleIcon } from "@/components/icons";
 
 import { createClient } from "@/utils/supabase/client";
 
-export default function SignupPage(
-  {
-    searchParams,
-  }: {
-    searchParams: { redirect: string };
-  }
-) {
+export default function SignupPage({
+  searchParams,
+}: {
+  searchParams: { redirect: string };
+}) {
   const [error, setError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string>("");
   const router = useRouter();
   const supabase = createClient();
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   // @ts-ignore
   const { redirect } = use(searchParams);
 
   const validatePassword = (
     password: string,
-    confirmPassword: string,
+    confirmPassword: string
   ): string => {
     if (password !== confirmPassword) {
       return "Les mots de passe ne correspondent pas";
@@ -72,7 +72,7 @@ export default function SignupPage(
         data: {
           full_name: username,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || `${baseUrl}/dashboard`}`,
       },
     });
 
@@ -87,6 +87,9 @@ export default function SignupPage(
   const handleGoogleSignup = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || `${baseUrl}/dashboard`}`,
+      },
     });
 
     if (error) {
