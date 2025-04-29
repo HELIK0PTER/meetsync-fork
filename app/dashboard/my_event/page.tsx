@@ -3,6 +3,7 @@
 
 import { Card } from "@heroui/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 
@@ -18,6 +19,7 @@ type Event = {
   owner_id: string;
   has_reminder: boolean;
   animationDelay?: number;
+  banner_url?: string;
 };
 
 export default function MesEvenementsPage() {
@@ -164,6 +166,7 @@ export default function MesEvenementsPage() {
               style={{
                 filter: "grayscale(100%)",
                 animationDelay: `${event.animationDelay}ms`,
+                animationFillMode: "forwards",
                 transform:
                   hoveredId === event.id ? "translateY(-8px)" : "translateY(0)",
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
@@ -175,32 +178,34 @@ export default function MesEvenementsPage() {
               onMouseEnter={() => setHoveredId(event.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              {/* Zone 1: Photo avec effet pulsation */}
-              <div className="bg-neutral-800 h-36 flex items-center justify-center overflow-hidden relative">
-                <div
-                  className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${
-                    hoveredId === event.id ? "animate-pulse" : ""
-                  }`}
-                >
-                  {hoveredId === event.id && (
-                    <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
-                  )}
-                  <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
-                </div>
-
+              {/* Zone 1: Bannière ou fond violet */}
+              <div className="bg-neutral-800 h-36 flex items-center justify-center overflow-hidden relative rounded-t-lg">
+                {event.banner_url ? (
+                  <Image
+                    src={event.banner_url}
+                    alt="Bannière"
+                    className="w-full h-full object-cover"
+                    style={{ minHeight: 120, maxHeight: 160 }}
+                    width={100}
+                    height={100}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-r from-violet-700 to-violet-500"></div>
+                )}
+  
                 {/* Effet de particules lors du survol */}
                 {hoveredId === event.id && (
-                  <div className="absolute inset-0 bg-neutral-800">
+                  <div className="absolute inset-0 bg-transparent pointer-events-none" style={{ filter: 'none' }}>
                     {[...Array(20)].map((_, i) => (
                       <div
                         key={i}
-                        className="absolute w-1 h-1 bg-neutral-600 rounded-full animate-floatingParticle"
+                        className="absolute w-1 h-1 bg-violet-400 shadow-lg rounded-full animate-floatingParticle"
                         style={{
                           left: `${Math.random() * 100}%`,
                           top: `${Math.random() * 100}%`,
                           animationDuration: `${Math.random() * 2 + 2}s`,
                           animationDelay: `${Math.random() * 2}s`,
-                          opacity: Math.random() * 0.5 + 0.1,
+                          opacity: Math.random() * 0.5 + 0.5,
                         }}
                       ></div>
                     ))}
@@ -256,7 +261,7 @@ export default function MesEvenementsPage() {
                   style={{ transform: "skewX(-15deg) translateX(-10%)" }}
                 ></div>
                 <div className="p-3 text-center relative z-10">
-                  <Link href={`/dashboard/event/${event.id}`}>
+                  <Link href={`/dashboard/my_event/${event.id}`}>
                     <button
                       className={`text-sm transition-all duration-300 relative ${
                         hoveredId === event.id
