@@ -1,8 +1,12 @@
 "use client";
 
-import { Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button, Input, Tooltip } from "@heroui/react";
+import { Tooltip } from "@heroui/tooltip";
+import { Button } from "@heroui/button";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+import { Card } from "@heroui/card"
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 // Définition du type pour les événements
 type Event = {
@@ -18,341 +22,8 @@ type Event = {
   animationDelay?: number;
 };
 
-// Liste de 30 événements de test avec des données variées
-const testEvents: Event[] = [
-  {
-    id: "1",
-    name: "Tech Conference 2025",
-    date: new Date(2025, 5, 15),
-    formattedDate: "15/06/2025",
-    city: "Paris",
-    country: "France",
-    price: 99.99,
-    attendees: 500,
-    owner_name: "TechEvents Inc."
-  },
-  {
-    id: "2",
-    name: "Festival de Musique Électronique",
-    date: new Date(2025, 6, 20),
-    formattedDate: "20/07/2025",
-    city: "Marseille",
-    country: "France",
-    price: 75,
-    attendees: 2500,
-    owner_name: "SoundWave Productions"
-  },
-  {
-    id: "3",
-    name: "Atelier de Cuisine Italienne",
-    date: new Date(2025, 4, 10),
-    formattedDate: "10/05/2025",
-    city: "Lyon",
-    country: "France",
-    price: 45,
-    attendees: 20,
-    owner_name: "Chef Antonio"
-  },
-  {
-    id: "4",
-    name: "Exposition d'Art Contemporain",
-    date: new Date(2025, 7, 5),
-    formattedDate: "05/08/2025",
-    city: "Bordeaux",
-    country: "France",
-    price: 12.50,
-    attendees: 150,
-    owner_name: "Galerie Moderne"
-  },
-  {
-    id: "5",
-    name: "Marathon de Madrid",
-    date: new Date(2025, 9, 12),
-    formattedDate: "12/10/2025",
-    city: "Madrid",
-    country: "Espagne",
-    price: 30,
-    attendees: 3000,
-    owner_name: "Madrid Sports"
-  },
-  {
-    id: "6",
-    name: "Conférence sur l'Intelligence Artificielle",
-    date: new Date(2025, 8, 25),
-    formattedDate: "25/09/2025",
-    city: "Berlin",
-    country: "Allemagne",
-    price: 150,
-    attendees: 350,
-    owner_name: "AI Future Network"
-  },
-  {
-    id: "7",
-    name: "Visite Guidée du Colisée",
-    date: new Date(2025, 5, 30),
-    formattedDate: "30/06/2025",
-    city: "Rome",
-    country: "Italie",
-    price: 25,
-    attendees: 50,
-    owner_name: "Roma Tours"
-  },
-  {
-    id: "8",
-    name: "Meetup Développeurs Web",
-    date: new Date(2025, 4, 22),
-    formattedDate: "22/05/2025",
-    city: "Toulouse",
-    country: "France",
-    price: null,
-    attendees: 75,
-    owner_name: "CodeCommunity"
-  },
-  {
-    id: "9",
-    name: "Workshop Design Thinking",
-    date: new Date(2025, 5, 8),
-    formattedDate: "08/06/2025",
-    city: "Amsterdam",
-    country: "Pays-Bas",
-    price: 65,
-    attendees: 40,
-    owner_name: "Creative Minds"
-  },
-  {
-    id: "10",
-    name: "Tournoi de Tennis Amateur",
-    date: new Date(2025, 6, 12),
-    formattedDate: "12/07/2025",
-    city: "Barcelone",
-    country: "Espagne",
-    price: 15,
-    attendees: 128,
-    owner_name: "Club de Tennis BCN"
-  },
-  {
-    id: "11",
-    name: "Hackathon Blockchain",
-    date: new Date(2025, 8, 5),
-    formattedDate: "05/09/2025",
-    city: "Zurich",
-    country: "Suisse",
-    price: null,
-    attendees: 120,
-    owner_name: "CryptoInnovation"
-  },
-  {
-    id: "12",
-    name: "Cours de Yoga en Plein Air",
-    date: new Date(2025, 6, 5),
-    formattedDate: "05/07/2025",
-    city: "Nice",
-    country: "France",
-    price: 10,
-    attendees: 30,
-    owner_name: "Zen Attitude"
-  },
-  {
-    id: "13",
-    name: "Concert Symphonique",
-    date: new Date(2025, 10, 18),
-    formattedDate: "18/11/2025",
-    city: "Vienne",
-    country: "Autriche",
-    price: 85,
-    attendees: 1200,
-    owner_name: "Orchestre National"
-  },
-  {
-    id: "14",
-    name: "Salon de l'Agriculture",
-    date: new Date(2025, 2, 15),
-    formattedDate: "15/03/2025",
-    city: "Paris",
-    country: "France",
-    price: 18,
-    attendees: 5000,
-    owner_name: "AgriExpo"
-  },
-  {
-    id: "15",
-    name: "Réunion Startup Weekend",
-    date: new Date(2025, 5, 20),
-    formattedDate: "20/06/2025",
-    city: "Lisbonne",
-    country: "Portugal",
-    price: 50,
-    attendees: 200,
-    owner_name: "Startup Lisboa"
-  },
-  {
-    id: "16",
-    name: "Séminaire sur la Finance Durable",
-    date: new Date(2025, 9, 8),
-    formattedDate: "08/10/2025",
-    city: "Genève",
-    country: "Suisse",
-    price: 199,
-    attendees: 80,
-    owner_name: "Swiss Finance Institute"
-  },
-  {
-    id: "17",
-    name: "Projection de Films Indépendants",
-    date: new Date(2025, 7, 15),
-    formattedDate: "15/08/2025",
-    city: "Bruxelles",
-    country: "Belgique",
-    price: 8,
-    attendees: 100,
-    owner_name: "CinéArt"
-  },
-  {
-    id: "18",
-    name: "Forum de l'Emploi Tech",
-    date: new Date(2025, 3, 25),
-    formattedDate: "25/04/2025",
-    city: "Munich",
-    country: "Allemagne",
-    price: null,
-    attendees: 650,
-    owner_name: "TechJobs Bavaria"
-  },
-  {
-    id: "19",
-    name: "Atelier de Peinture pour Débutants",
-    date: new Date(2025, 4, 18),
-    formattedDate: "18/05/2025",
-    city: "Florence",
-    country: "Italie",
-    price: 35,
-    attendees: 15,
-    owner_name: "Atelier de Lorenzo"
-  },
-  {
-    id: "20",
-    name: "Conférence Développement Durable",
-    date: new Date(2025, 11, 10),
-    formattedDate: "10/12/2025",
-    city: "Stockholm",
-    country: "Suède",
-    price: 75,
-    attendees: 300,
-    owner_name: "Green Future"
-  },
-  {
-    id: "21",
-    name: "Séance de Dédicace Littéraire",
-    date: new Date(2025, 6, 28),
-    formattedDate: "28/07/2025",
-    city: "Lyon",
-    country: "France",
-    price: null,
-    attendees: 50,
-    owner_name: "Librairie du Quartier"
-  },
-  {
-    id: "22",
-    name: "Festival de Gastronomie",
-    date: new Date(2025, 8, 15),
-    formattedDate: "15/09/2025",
-    city: "Porto",
-    country: "Portugal",
-    price: 25,
-    attendees: 1500,
-    owner_name: "Saveurs Portugaises"
-  },
-  {
-    id: "23",
-    name: "Course à Pied Caritative",
-    date: new Date(2025, 4, 30),
-    formattedDate: "30/05/2025",
-    city: "Dublin",
-    country: "Irlande",
-    price: 20,
-    attendees: 800,
-    owner_name: "Run for Hope"
-  },
-  {
-    id: "24",
-    name: "Salon du Livre Ancien",
-    date: new Date(2025, 10, 5),
-    formattedDate: "05/11/2025",
-    city: "Strasbourg",
-    country: "France",
-    price: 12,
-    attendees: 250,
-    owner_name: "Bibliophiles Association"
-  },
-  {
-    id: "25",
-    name: "Conférence Cybersécurité",
-    date: new Date(2025, 9, 20),
-    formattedDate: "20/10/2025",
-    city: "Helsinki",
-    country: "Finlande",
-    price: 180,
-    attendees: 220,
-    owner_name: "CyberDefense Nordic"
-  },
-  {
-    id: "26",
-    name: "Atelier Photographie de Paysage",
-    date: new Date(2025, 7, 8),
-    formattedDate: "08/08/2025",
-    city: "Prague",
-    country: "République Tchèque",
-    price: 40,
-    attendees: 25,
-    owner_name: "VisionArt"
-  },
-  {
-    id: "27",
-    name: "Dégustation de Vins",
-    date: new Date(2025, 5, 12),
-    formattedDate: "12/06/2025",
-    city: "Bordeaux",
-    country: "France",
-    price: 55,
-    attendees: 40,
-    owner_name: "Château du Vignoble"
-  },
-  {
-    id: "28",
-    name: "Webinaire Marketing Digital",
-    date: new Date(2025, 4, 15),
-    formattedDate: "15/05/2025",
-    city: "En ligne",
-    country: "International",
-    price: null,
-    attendees: 450,
-    owner_name: "Digital Growth Agency"
-  },
-  {
-    id: "29",
-    name: "Festival de Jazz",
-    date: new Date(2025, 6, 15),
-    formattedDate: "15/07/2025",
-    city: "Copenhague",
-    country: "Danemark",
-    price: 60,
-    attendees: 900,
-    owner_name: "Nordic Jazz Society"
-  },
-  {
-    id: "30",
-    name: "Meetup React Developers",
-    date: new Date(2025, 5, 28),
-    formattedDate: "28/06/2025",
-    city: "Berlin",
-    country: "Allemagne",
-    price: null,
-    attendees: 80,
-    owner_name: "React Berlin Community"
-  }
-];
-
 export default function RechercheEvenementsPage() {
+  const [events, setEvents] = useState<Event[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeEvents, setActiveEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -363,24 +34,53 @@ export default function RechercheEvenementsPage() {
   const [countryFilter, setCountryFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+
   const eventsPerPage = 9;
+
+  const supabase = createClient();
+
+  // Récupérer les événements depuis la base de données
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const { data, error } = await supabase
+        .from("event")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Erreur lors de la récupération des événements:", error);
+      } else {
+        // Formater les dates pour l'affichage
+        const formattedEvents = data.map(event => {
+          const eventDate = new Date(event.date);
+          return {
+            ...event,
+            date: eventDate,
+            formattedDate: eventDate.toLocaleDateString('fr-FR')
+          };
+        });
+        setEvents(formattedEvents);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   // Simulation du chargement des données et préparation des événements
   useEffect(() => {
     setIsLoading(true);
     setTimeout(() => {
-      const eventsWithDelay = testEvents.map((event, index) => ({
+      const eventsWithDelay = events.map((event, index) => ({
         ...event,
         animationDelay: index * 100,
       }));
       setActiveEvents(eventsWithDelay);
       setIsLoading(false);
     }, 1000);
-  }, []);
+  }, [events]);
 
   // Application des filtres
   useEffect(() => {
-    let filteredResults = testEvents;
+    let filteredResults = events;
 
     // Filtre par terme de recherche (uniquement nom d'événement)
     if (searchTerm) {
@@ -440,7 +140,7 @@ export default function RechercheEvenementsPage() {
 
     setActiveEvents(resultsWithDelay);
     setCurrentPage(1); // Réinitialiser à la première page lors d'un changement de filtre
-  }, [searchTerm, priceFilter, countryFilter, dateFilter]);
+  }, [searchTerm, priceFilter, countryFilter, dateFilter, events]);
 
   // Calcul des événements à afficher pour la pagination
   const indexOfLastEvent = currentPage * eventsPerPage;
@@ -449,7 +149,7 @@ export default function RechercheEvenementsPage() {
   const totalPages = Math.ceil(activeEvents.length / eventsPerPage);
 
   // Liste des pays uniques pour le filtre
-  const uniqueCountries = [...new Set(testEvents.map(event => event.country))];
+  const uniqueCountries = Array.from(new Set(events.map(event => event.country)));
 
   return (
     <div className="min-h-screen bg-black p-6">
@@ -525,11 +225,12 @@ export default function RechercheEvenementsPage() {
               aria-label="Filtre de pays"
               onAction={(key) => setCountryFilter(key as string)}
               className="bg-neutral-800 text-white"
+              items={[
+                { key: "all", label: "Tous les pays" },
+                ...uniqueCountries.map(country => ({ key: country, label: country }))
+              ]}
             >
-              <DropdownItem key="all">Tous les pays</DropdownItem>
-              {uniqueCountries.map(country => (
-                <DropdownItem key={country}>{country}</DropdownItem>
-              ))}
+              <></>
             </DropdownMenu>
           </Dropdown>
 
