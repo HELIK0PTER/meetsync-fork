@@ -34,6 +34,7 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="fr" className="scroll-smooth">
       <head />
       <body
+        cz-shortcut-listen="true"
         className={clsx(
           "min-h-screen bg-background font-sans antialiased overflow-y-scroll",
           fontSans.variable,
