@@ -4,153 +4,174 @@
 import { Card } from "@heroui/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 // Définition du type pour les invitations
-type Invitation = {
-  id: number;
-  title: string;
-  date: string;
-  attendees: number;
-  status: "pending" | "accepted" | "refused";
-  animationDelay?: number;
-};
+interface Invitation {
+  // Champs de l'invite
+  invite_id: string;
+  invite_created_at: string;
+  event_id: string;
+  status: string;
+  must_pay: boolean;
+  user_id: string;
 
-// Liste de 10 invitations factices avec statut
-const dummyInvitations: Invitation[] = [
-  {
-    id: 1,
-    title: "Tech Conference 2023",
-    date: "12/05/2023",
-    attendees: 100,
-    status: "pending",
-  },
-  {
-    id: 2,
-    title: "Product Launch: NextGen",
-    date: "01/15/2024",
-    attendees: 150,
-    status: "accepted",
-  },
-  {
-    id: 3,
-    title: "Annual Team Retreat",
-    date: "05/12/2023",
-    attendees: 50,
-    status: "refused",
-  },
-  {
-    id: 4,
-    title: "Developer Workshop",
-    date: "03/22/2024",
-    attendees: 75,
-    status: "accepted",
-  },
-  {
-    id: 5,
-    title: "UX Design Summit",
-    date: "06/10/2024",
-    attendees: 120,
-    status: "pending",
-  },
-  {
-    id: 6,
-    title: "Hackathon 2024",
-    date: "04/05/2024",
-    attendees: 200,
-    status: "refused",
-  },
-  {
-    id: 7,
-    title: "AI Conference",
-    date: "07/18/2024",
-    attendees: 180,
-    status: "accepted",
-  },
-  {
-    id: 8,
-    title: "Startup Networking",
-    date: "08/30/2024",
-    attendees: 90,
-    status: "pending",
-  },
-  {
-    id: 9,
-    title: "Cloud Summit 2024",
-    date: "09/15/2024",
-    attendees: 135,
-    status: "refused",
-  },
-  {
-    id: 10,
-    title: "Tech Hiring Fair",
-    date: "10/22/2024",
-    attendees: 250,
-    status: "accepted",
-  },
-];
+  // Champs de l'événement
+  event_created_at: string;
+  event_name: string;
+  event_date: string;
+  price: number;
+  city: string;
+  banner_url: string;
+
+  // Informations additionnelles
+  attendee_count: number;
+  
+  // Pour l'animation
+  animationDelay?: number;
+}
 
 export default function MesInvitationsPage() {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
-  const [hoveredButton, setHoveredButton] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [activeInvitations, setActiveInvitations] = useState<Invitation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "accepted" | "refused">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "waiting" | "accept" | "refused"
+  >("all");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const supabase = createClient();
 
   useEffect(() => {
-    const invitationsWithDelay = dummyInvitations.map((invitation, index) => ({
-      ...invitation,
-      animationDelay: index * 100,
-    }));
-    setActiveInvitations(invitationsWithDelay);
-  }, []);
+    const fetchInvitations = async () => {
+      setIsLoading(true);
+
+      const { data, error } = await supabase
+        .from("my_invites")
+        .select("*")
+        .order("invite_created_at", { ascending: false });
+
+      if (error) {
+        console.error("Erreur lors de la récupération des invitations:", error);
+      } else {
+        // Formater les invitations pour l'affichage
+        const formattedInvitations = data.map((invitation, index) => ({
+          ...invitation,
+          animationDelay: index * 100,
+        }));
+        return formattedInvitations as Invitation[];
+      }
+      return [];
+    };
+    fetchInvitations()
+      .then((formattedInvitations) => {
+        setActiveInvitations(formattedInvitations);
+        console.log(formattedInvitations);
+        console.log(activeInvitations);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la récupération des invitations:", error);
+        setIsLoading(false);
+      });
+  }, [supabase]);
 
   const filteredInvitations = activeInvitations.filter((invitation) => {
     // Filtre par terme de recherche
-    const matchesSearch = invitation.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = invitation.event_name
+      ? invitation.event_name.toLowerCase().includes(searchTerm.toLowerCase())
+      : false;
 
     // Filtre par statut
-    const matchesStatus = statusFilter === "all" || invitation.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || invitation.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status: Invitation["status"]) => {
     switch (status) {
-      case "pending":
+      case "waiting":
         return "text-yellow-400";
-      case "accepted":
+      case "accept":
         return "text-green-400";
       case "refused":
         return "text-red-400";
+      default:
+        return "text-gray-400";
     }
   };
 
   const getStatusIcon = (status: Invitation["status"]) => {
     switch (status) {
-      case "pending":
+      case "waiting":
         return (
-          <svg className="w-4 h-4 inline-block mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="w-4 h-4 inline-block mr-1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
         );
-      case "accepted":
+      case "accept":
         return (
-          <svg className="w-4 h-4 inline-block mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="w-4 h-4 inline-block mr-1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
         );
       case "refused":
         return (
-          <svg className="w-4 h-4 inline-block mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="w-4 h-4 inline-block mr-1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="15" y1="9" x2="9" y2="15"></line>
             <line x1="9" y1="9" x2="15" y2="15"></line>
           </svg>
         );
+      default:
+        return null;
     }
+  };
+
+  // Fonction pour formater la date
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Date non spécifiée";
+    
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
   };
 
   return (
@@ -209,21 +230,21 @@ export default function MesInvitationsPage() {
             </button>
             <button
               className={`px-4 py-2 rounded-lg transition-all ${
-                statusFilter === "pending"
+                statusFilter === "waiting"
                   ? "bg-yellow-600 text-white"
                   : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
               }`}
-              onClick={() => setStatusFilter("pending")}
+              onClick={() => setStatusFilter("waiting")}
             >
               En attente
             </button>
             <button
               className={`px-4 py-2 rounded-lg transition-all ${
-                statusFilter === "accepted"
+                statusFilter === "accept"
                   ? "bg-green-600 text-white"
                   : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
               }`}
-              onClick={() => setStatusFilter("accepted")}
+              onClick={() => setStatusFilter("accept")}
             >
               Acceptées
             </button>
@@ -243,54 +264,70 @@ export default function MesInvitationsPage() {
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredInvitations.length > 0 ? (
+        {isLoading ? (
+          <div className="col-span-full text-center text-xl text-gray-400 py-16">
+            Chargement des invitations...
+          </div>
+        ) : filteredInvitations.length > 0 ? (
           filteredInvitations.map((invitation) => (
             <Card
-              key={invitation.id}
+              key={invitation.invite_id}
               className="overflow-hidden rounded-lg flex flex-col opacity-0 animate-slideUp cursor-pointer"
               style={{
                 animationDelay: `${invitation.animationDelay}ms`,
                 animationFillMode: "forwards",
                 transform:
-                  hoveredId === invitation.id ? "translateY(-8px)" : "translateY(0)",
+                  hoveredId === invitation.invite_id
+                    ? "translateY(-8px)"
+                    : "translateY(0)",
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
                 boxShadow:
-                  hoveredId === invitation.id
+                  hoveredId === invitation.invite_id
                     ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
                     : "none",
               }}
-              onMouseEnter={() => setHoveredId(invitation.id)}
+              onMouseEnter={() => setHoveredId(invitation.invite_id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              {/* Zone 1: Visuel */}
+              {/* Zone 1: Visuel - Utiliser banner_url si disponible */}
               <div className="bg-neutral-800 h-36 flex items-center justify-center overflow-hidden relative">
-                <div
-                  className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${
-                    hoveredId === invitation.id ? "animate-pulse" : ""
-                  }`}
-                >
-                  {hoveredId === invitation.id && (
-                    <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
-                  )}
-                  <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
-                </div>
+                {invitation.banner_url ? (
+                  <img 
+                    src={invitation.banner_url} 
+                    alt={invitation.event_name || "Événement"} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <>
+                    <div
+                      className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${
+                        hoveredId === invitation.invite_id ? "animate-pulse" : ""
+                      }`}
+                    >
+                      {hoveredId === invitation.invite_id && (
+                        <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
+                      )}
+                      <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
+                    </div>
 
-                {hoveredId === invitation.id && (
-                  <div className="absolute inset-0 bg-neutral-800">
-                    {[...Array(20)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute w-1 h-1 bg-neutral-600 rounded-full animate-floatingParticle"
-                        style={{
-                          left: `${Math.random() * 100}%`,
-                          top: `${Math.random() * 100}%`,
-                          animationDuration: `${Math.random() * 2 + 2}s`,
-                          animationDelay: `${Math.random() * 2}s`,
-                          opacity: Math.random() * 0.5 + 0.1,
-                        }}
-                      ></div>
-                    ))}
-                  </div>
+                    {hoveredId === invitation.invite_id && (
+                      <div className="absolute inset-0 bg-neutral-800">
+                        {[...Array(20)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute w-1 h-1 bg-neutral-600 rounded-full animate-floatingParticle"
+                            style={{
+                              left: `${Math.random() * 100}%`,
+                              top: `${Math.random() * 100}%`,
+                              animationDuration: `${Math.random() * 2 + 2}s`,
+                              animationDelay: `${Math.random() * 2}s`,
+                              opacity: Math.random() * 0.5 + 0.1,
+                            }}
+                          ></div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -300,38 +337,66 @@ export default function MesInvitationsPage() {
                   className="text-xl font-medium text-white mb-2 transition-all duration-300"
                   style={{
                     transform:
-                      hoveredId === invitation.id ? "translateX(6px)" : "translateX(0)",
+                      hoveredId === invitation.invite_id
+                        ? "translateX(6px)"
+                        : "translateX(0)",
                   }}
                 >
-                  {invitation.title}
+                  {invitation.event_name || "Sans titre"}
                 </h2>
                 <p
                   className="text-sm text-gray-400 mb-1 transition-all duration-300"
                   style={{
                     transform:
-                      hoveredId === invitation.id ? "translateX(3px)" : "translateX(0)",
+                      hoveredId === invitation.invite_id
+                        ? "translateX(3px)"
+                        : "translateX(0)",
                   }}
                 >
-                  {invitation.date}
+                  {formatDate(invitation.event_date)}
+                </p>
+                <p
+                  className="text-sm text-gray-400 mb-1 transition-all duration-300"
+                  style={{
+                    transform:
+                      hoveredId === invitation.invite_id
+                        ? "translateX(3px)"
+                        : "translateX(0)",
+                  }}
+                >
+                  <span className="font-medium">{invitation.city || "Lieu non spécifié"}</span>
                 </p>
                 <p
                   className="text-sm text-gray-400 mb-2 transition-all duration-300"
                   style={{
                     transform:
-                      hoveredId === invitation.id ? "translateX(3px)" : "translateX(0)",
+                      hoveredId === invitation.invite_id
+                        ? "translateX(3px)"
+                        : "translateX(0)",
                   }}
                 >
-                  {invitation.attendees} participants
+                  {invitation.attendee_count} participants
+                  {invitation.price > 0 && ` • ${invitation.price.toFixed(2)}€`}
                 </p>
                 <div
                   className={`text-sm font-medium flex items-center transition-all duration-300 ${getStatusColor(invitation.status)}`}
                   style={{
                     transform:
-                      hoveredId === invitation.id ? "translateX(3px)" : "translateX(0)",
+                      hoveredId === invitation.invite_id
+                        ? "translateX(3px)"
+                        : "translateX(0)",
                   }}
                 >
                   {getStatusIcon(invitation.status)}
-                  <span className="capitalize">{invitation.status}</span>
+                  <span className="capitalize">
+                    {invitation.status === "waiting"
+                      ? "En attente"
+                      : invitation.status === "accept"
+                      ? "Acceptée"
+                      : invitation.status === "refused"
+                        ? "Refusée"
+                        : invitation.status}
+                  </span>
                 </div>
               </div>
 
@@ -342,18 +407,19 @@ export default function MesInvitationsPage() {
                   style={{ transform: "skewX(-15deg) translateX(-10%)" }}
                 ></div>
                 <div className="p-3 text-center relative z-10">
-                  <Link href={`/invitation/${invitation.id}`}>
+                  <Link href={`/my_event/${invitation.event_id}`}>
                     <button
                       className="text-sm px-4 py-1 rounded-md transition-all duration-300 relative text-white hover:text-blue-400"
-                      onMouseEnter={() => setHoveredButton(invitation.id)}
+                      onMouseEnter={() => setHoveredButton(invitation.invite_id)}
                       onMouseLeave={() => setHoveredButton(null)}
                     >
                       <span className="relative z-10">Voir les détails</span>
                       <span
                         className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300"
                         style={{
-                          width: hoveredButton === invitation.id ? '100%' : '0%',
-                          opacity: hoveredButton === invitation.id ? 1 : 0
+                          width:
+                            hoveredButton === invitation.invite_id ? "100%" : "0%",
+                          opacity: hoveredButton === invitation.invite_id ? 1 : 0,
                         }}
                       ></span>
                     </button>
@@ -371,66 +437,66 @@ export default function MesInvitationsPage() {
 
       {/* Animations globales */}
       <style jsx global>{`
-          @keyframes fadeIn {
-              from {
-                  opacity: 0;
-              }
-              to {
-                  opacity: 1;
-              }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
           }
+          to {
+            opacity: 1;
+          }
+        }
 
-          @keyframes slideUp {
-              from {
-                  opacity: 0;
-                  transform: translateY(30px);
-              }
-              to {
-                  opacity: 1;
-                  transform: translateY(0);
-              }
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
           }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 
-          @keyframes ripple {
-              0% {
-                  transform: scale(1);
-                  opacity: 0.4;
-              }
-              100% {
-                  transform: scale(2.5);
-                  opacity: 0;
-              }
+        @keyframes ripple {
+          0% {
+            transform: scale(1);
+            opacity: 0.4;
           }
+          100% {
+            transform: scale(2.5);
+            opacity: 0;
+          }
+        }
 
-          @keyframes floatingParticle {
-              0% {
-                  transform: translateY(0) translateX(0);
-                  opacity: 0;
-              }
-              50% {
-                  opacity: 1;
-              }
-              100% {
-                  transform: translateY(-40px) translateX(20px);
-                  opacity: 0;
-              }
+        @keyframes floatingParticle {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0;
           }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(-40px) translateX(20px);
+            opacity: 0;
+          }
+        }
 
-          .animate-fadeIn {
-              animation: fadeIn 0.8s ease-out;
-          }
+        .animate-fadeIn {
+          animation: fadeIn 0.8s ease-out;
+        }
 
-          .animate-slideUp {
-              animation: slideUp 0.8s ease-out;
-          }
+        .animate-slideUp {
+          animation: slideUp 0.8s ease-out;
+        }
 
-          .animate-ripple {
-              animation: ripple 1.5s infinite;
-          }
+        .animate-ripple {
+          animation: ripple 1.5s infinite;
+        }
 
-          .animate-floatingParticle {
-              animation: floatingParticle 3s infinite;
-          }
+        .animate-floatingParticle {
+          animation: floatingParticle 3s infinite;
+        }
       `}</style>
     </>
   );
