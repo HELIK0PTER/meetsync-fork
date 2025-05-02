@@ -1,5 +1,6 @@
 import { Image } from "@heroui/image";
 import { Card, CardBody } from "@heroui/card";
+import Image3D from "./Image3D";
 
 import PlansSection from "./PlansSection";
 import HeroCTA from "./HeroCTA";
@@ -72,10 +73,11 @@ export default function Home() {
               </div>
             </div>
             <div className="lg:w-1/2 relative">
-              <Image
+              <Image3D
+                id="maquette"
                 src="/maquette.png"
                 alt="Interface MeetSync"
-                className="hidden lg:block transform hover:scale-105 transition-transform duration-500 rounded-xl shadow-2xl"
+                className="hidden lg:block"
               />
             </div>
           </div>
