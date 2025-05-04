@@ -54,20 +54,20 @@ export default async function RootLayout({
               Créer un événement
             </Link>
             <Link
-              href="/dashboard/my_invit"
-              color="foreground"
-              className="flex items-center gap-2 p-2"
-            >
-              <SlEnvolopeLetter className="text-xl" />
-              Mes invitations
-            </Link>
-            <Link
               href="/dashboard/my_event"
               color="foreground"
               className="flex items-center gap-2 p-2"
             >
               <MdEvent className="text-xl" />
               Mes événements
+            </Link>
+            <Link
+              href="/dashboard/my_invit"
+              color="foreground"
+              className="flex items-center gap-2 p-2"
+            >
+              <SlEnvolopeLetter className="text-xl" />
+              Mes invitations
             </Link>
             <Link
               href="/dashboard/all_event"

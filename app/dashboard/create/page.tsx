@@ -25,8 +25,9 @@ export default function Dashboard() {
   const [paypalEmail, setPaypalEmail] = React.useState("");
   const [hasReminder, setHasReminder] = React.useState(false);
   const [isEmailDisabled, setIsEmailDisabled] = React.useState(true);
+  const [isPublic, setIsPublic] = React.useState(false);
 
-  const [userId, setUserId] = React.useState<any>(null);
+  const [userId, setUserId] = React.useState<String | null>(null);
 
   const supabase = createClient();
   const router = useRouter();
@@ -70,18 +71,25 @@ export default function Dashboard() {
     setIsSubmitting(true);
     let data = Object.fromEntries(new FormData(e.currentTarget));
     console.log(data);
+    console.log(userId);
+    console.log(isPublic);
+    console.log(hasReminder);
 
-    const { data: inserted, error } = await supabase.from("event").insert({
-      event_name: data.event_name,
-      event_date: data.event_date.toString().split("T")[0],
-      country: data.country,
-      city: data.city,
-      rue: data.rue,
-      price: data.price,
-      paypal_email: data.paypal_email,
-      owner_id: userId,
-      has_reminder: hasReminder,
-    }).select();
+    const { data: inserted, error } = await supabase
+      .from("event")
+      .insert({
+        event_name: data.event_name,
+        event_date: data.event_date.toString().split("T")[0],
+        country: data.country,
+        city: data.city,
+        rue: data.rue,
+        price: data.price,
+        paypal_email: data.paypal_email,
+        owner_id: userId,
+        has_reminder: hasReminder,
+        is_public: isPublic,
+      })
+      .select();
 
     if (error) {
       setIsSubmitting(false);
@@ -91,12 +99,12 @@ export default function Dashboard() {
     // On récupère l'id de l'événement créé
     const eventId = inserted && inserted[0]?.id;
     // Attendre 1 seconde puis rediriger
-    setTimeout(() => {
-      setIsSubmitting(false);
-      if (eventId) {
-        router.push(`/dashboard/event/${eventId}`);
-      }
-    }, 1000);
+    // setTimeout(() => {
+    //   setIsSubmitting(false);
+    //   if (eventId) {
+    //     router.push(`/dashboard/event/${eventId}`);
+    //   }
+    // }, 1000);
   };
 
   return (
@@ -174,6 +182,10 @@ export default function Dashboard() {
           <Divider />
           <p className="text-xl">Autres</p>
 
+          <Checkbox isSelected={isPublic} onChange={() => setIsPublic(!isPublic)}>
+            Événement public
+          </Checkbox>
+
           <Checkbox isSelected={isPaid} onChange={handleCheckboxChange}>
             Événement payant
           </Checkbox>
@@ -205,9 +217,7 @@ export default function Dashboard() {
             </>
           )}
 
-          <Checkbox
-            onClick={() => setHasReminder(!hasReminder)}
-          >
+          <Checkbox onClick={() => setHasReminder(!hasReminder)}>
             Rappel automatique
           </Checkbox>
           <p className="text-gray-500 text-xs">
