@@ -10,6 +10,8 @@ import {
 } from "@heroui/dropdown";
 import { useState, useEffect, useLayoutEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
+import Image from "next/image";
 
 // Type for events fetched from the "all_events" view
 type Event = {
@@ -22,6 +24,7 @@ type Event = {
   price: number | null;
   attendees: number;
   owner_name: string | null;
+  banner_url: string | null;
   animationDelay?: number;
 };
 
@@ -79,7 +82,7 @@ export default function RechercheEvenementsPage() {
         }));
         setActiveEvents(eventsWithDelay);
         setIsLoading(false);
-      }, 1000);
+      }, 100);
       return () => clearTimeout(timer);
     }
   }, [events]);
@@ -336,8 +339,9 @@ export default function RechercheEvenementsPage() {
       {!isLoading && activeEvents.length > 0 && (
         <div className="events-grid">
           {currentEvents.map((event) => (
-            <div
+            <Link
               key={event.id}
+              href={`/dashboard/my_event/${event.id}`}
               className="event-card animate-slideUp"
               style={{
                 animationDelay: `${event.animationDelay}ms`,
@@ -355,14 +359,24 @@ export default function RechercheEvenementsPage() {
             >
               {/* Zone 1: Image/Visualisation de l'événement */}
               <div className="event-card-image">
-                <div
-                  className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${hoveredId === event.id ? "animate-pulse" : ""}`}
-                >
-                  {hoveredId === event.id && (
-                    <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
-                  )}
-                  <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
-                </div>
+                {event.banner_url ? (
+                  <Image
+                    src={event.banner_url}
+                    alt={event.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    className={hoveredId === event.id ? "scale-105 transition-transform duration-300" : "transition-transform duration-300"}
+                  />
+                ) : (
+                  <div
+                    className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${hoveredId === event.id ? "animate-pulse" : ""}`}
+                  >
+                    {hoveredId === event.id && (
+                      <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
+                    )}
+                    <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
+                  </div>
+                )}
 
                 {/* Badge de prix */}
                 {event.price !== null && event.price > 0 && (
@@ -396,7 +410,7 @@ export default function RechercheEvenementsPage() {
                   </p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
@@ -715,6 +729,7 @@ export default function RechercheEvenementsPage() {
           padding: 0.375rem 0.75rem;
           border-radius: 9999px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          z-index: 10;
         }
 
         .event-card-badge.free {

@@ -407,7 +407,7 @@ export default function MesInvitationsPage() {
                   style={{ transform: "skewX(-15deg) translateX(-10%)" }}
                 ></div>
                 <div className="p-3 text-center relative z-10">
-                  <Link href={`/my_event/${invitation.event_id}`}>
+                  <Link href={`/dashboard/my_event/${invitation.event_id}`}>
                     <button
                       className="text-sm px-4 py-1 rounded-md transition-all duration-300 relative text-white hover:text-blue-400"
                       onMouseEnter={() => setHoveredButton(invitation.invite_id)}
