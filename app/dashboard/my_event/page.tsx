@@ -164,7 +164,7 @@ export default function MesEvenementsPage() {
               key={event.id}
               className="overflow-hidden rounded-lg flex flex-col animate-slideUp cursor-pointer"
               style={{
-                filter: "grayscale(100%)",
+                filter: hoveredId === event.id ? "none" : "grayscale(100%)",
                 animationDelay: `${event.animationDelay}ms`,
                 animationFillMode: "forwards",
                 transform:
@@ -186,8 +186,8 @@ export default function MesEvenementsPage() {
                     alt="Bannière"
                     className="w-full h-full object-cover"
                     style={{ minHeight: 120, maxHeight: 160 }}
-                    width={100}
-                    height={100}
+                    width={1000}
+                    height={1000}
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-r from-violet-700 to-violet-500"></div>
