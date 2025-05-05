@@ -6,6 +6,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Footer } from "@/components/footer";
 import { Providers } from "./providers";
+import DynamicBackground from "./components/DynamicBackground";
 
 export const metadata: Metadata = {
   title: {
@@ -42,6 +43,7 @@ export default function RootLayout({
       >
         <Providers>
           <div className="relative flex flex-col items-center h-screen w-full">
+            <DynamicBackground />
             <main className="flex-1 w-full">{children}</main>
             <Footer />
           </div>

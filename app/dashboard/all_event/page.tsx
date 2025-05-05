@@ -210,7 +210,7 @@ export default function RechercheEvenementsPage() {
             <DropdownTrigger>
               <Button
                 variant="flat"
-                className="bg-neutral-800 border border-neutral-700"
+                className="bg-neutral-800 border border-neutral-700 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 transition-all duration-300"
               >
                 Prix:{" "}
                 {priceFilter === "all"
@@ -242,7 +242,7 @@ export default function RechercheEvenementsPage() {
             <DropdownTrigger>
               <Button
                 variant="flat"
-                className="bg-neutral-800 border border-neutral-700"
+                className="bg-neutral-800 border border-neutral-700 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 transition-all duration-300"
               >
                 Pays: {countryFilter === "all" ? "Tous" : countryFilter}
               </Button>
@@ -268,7 +268,7 @@ export default function RechercheEvenementsPage() {
             <DropdownTrigger>
               <Button
                 variant="flat"
-                className="bg-neutral-800 border border-neutral-700"
+                className="bg-neutral-800 border border-neutral-700 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 transition-all duration-300"
               >
                 Date:{" "}
                 {dateFilter === "all"
@@ -342,23 +342,22 @@ export default function RechercheEvenementsPage() {
             <Link
               key={event.id}
               href={`/dashboard/my_event/${event.id}`}
+              className="block transition-all duration-300 hover:scale-105 hover:ring-2 hover:ring-purple-500 rounded-lg"
+            >
+              <div
               className="event-card animate-slideUp"
               style={{
                 animationDelay: `${event.animationDelay}ms`,
                 animationFillMode: "forwards",
-                transform:
-                  hoveredId === event.id ? "translateY(-8px)" : "translateY(0)",
+                  transform: hoveredId === event.id ? "translateY(-8px)" : "translateY(0)",
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                boxShadow:
-                  hoveredId === event.id
-                    ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
-                    : "none",
+                  boxShadow: hoveredId === event.id ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)" : "none",
               }}
               onMouseEnter={() => setHoveredId(event.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
               {/* Zone 1: Image/Visualisation de l'événement */}
-              <div className="event-card-image">
+                <div className="relative h-48 bg-neutral-800">
                 {event.banner_url ? (
                   <Image
                     src={event.banner_url}
@@ -368,45 +367,113 @@ export default function RechercheEvenementsPage() {
                     className={hoveredId === event.id ? "scale-105 transition-transform duration-300" : "transition-transform duration-300"}
                   />
                 ) : (
-                  <div
-                    className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${hoveredId === event.id ? "animate-pulse" : ""}`}
-                  >
-                    {hoveredId === event.id && (
-                      <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
-                    )}
-                    <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-neutral-600 rounded-full"></div>
+                      </div>
                   </div>
-                )}
-
-                {/* Badge de prix */}
-                {event.price !== null && event.price > 0 && (
-                  <div className="event-card-badge">{event.price}€</div>
-                )}
-
-                {(event.price === 0 || event.price === null) && (
-                  <div className="event-card-badge free">Gratuit</div>
                 )}
               </div>
 
               {/* Zone 2: Informations de l'événement */}
-              <div className="event-card-content">
-                <h2 className="event-card-title">{event.name}</h2>
-                <p className="event-card-details">
-                  {event.formattedDate} • {event.city}, {event.country}
-                </p>
-                <p className="event-card-owner">
-                  {event.owner_name && (
-                    <span className="text-white">Organisé par</span>
-                  )}{" "}
-                  {event.owner_name}
-                </p>
-                <div className="event-card-footer">
-                  <p className="event-card-participants">
-                    {event.attendees} participant
-                    {event.attendees !== 1 ? "s" : ""}
+                <div className="p-5 flex-grow bg-neutral-900">
+                  <h2 
+                    className="text-xl font-medium text-white mb-2 transition-all duration-300"
+                    style={{
+                      transform: hoveredId === event.id ? "translateX(8px)" : "translateX(0)"
+                    }}
+                  >
+                    {event.name}
+                  </h2>
+                  <p 
+                    className="text-sm text-gray-400 mb-1 transition-all duration-300 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 hover:px-2 hover:py-1 hover:rounded-md"
+                    style={{
+                      transform: hoveredId === event.id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    {event.formattedDate}
                   </p>
-                  <p className="event-card-price">
-                    {event.price !== null ? `${event.price}€` : "Gratuit"}
+                  <p 
+                    className="text-sm text-gray-400 mb-1 transition-all duration-300 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 hover:px-2 hover:py-1 hover:rounded-md"
+                    style={{
+                      transform: hoveredId === event.id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span>{event.city}, {event.country}</span>
+                    </div>
+                  </p>
+                  <p 
+                    className="text-sm text-gray-400 mb-2 transition-all duration-300 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 hover:px-2 hover:py-1 hover:rounded-md"
+                    style={{
+                      transform: hoveredId === event.id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {event.price === null || event.price === 0 ? (
+                        <span className="text-green-400">Gratuit</span>
+                      ) : (
+                        <span>{event.price}€</span>
+                      )}
+                    </div>
+                  </p>
+                  <p 
+                    className="text-sm text-gray-400 mb-2 transition-all duration-300 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 hover:px-2 hover:py-1 hover:rounded-md"
+                    style={{
+                      transform: hoveredId === event.id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                      </svg>
+                      <span>{event.attendees} participant{event.attendees !== 1 ? "s" : ""}</span>
+                    </div>
                   </p>
                 </div>
               </div>

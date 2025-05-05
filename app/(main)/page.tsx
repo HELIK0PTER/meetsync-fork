@@ -33,53 +33,40 @@ export default function Home() {
   return (
     <section className="w-full">
       {/* Hero Section */}
-      <div className="relative overflow-hidden py-16 sm:py-24">
+      <div className="relative overflow-hidden py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:max-w-none flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
             <div className="w-full lg:w-1/2 text-center lg:text-left">
               <div className="max-w-3xl mx-auto lg:mx-0">
-                <h1 className="flex flex-col gap-2 sm:gap-3">
+                <h1 className="flex flex-col gap-4 sm:gap-6">
                   <div>
-                    <span className={title({ size: "sm" })}>
+                    <span className="text-3xl sm:text-4xl lg:text-5xl font-bold">
                       Une plateforme de réservation
                     </span>
                   </div>
-                  <div>
-                    <span className={title({ color: "violet", size: "sm" })}>
-                      simple
-                    </span>
-                    <span className={title({ size: "sm" })}>, </span>
-                    <span className={title({ color: "violet", size: "sm" })}>
-                      rapide
-                    </span>
-                    <span className={title({ size: "sm" })}> et </span>
-                    <span className={title({ color: "violet", size: "sm" })}>
-                      sécurisée
-                    </span>
+                  <div className="text-3xl sm:text-4xl lg:text-5xl font-bold">
+                    <span className="text-purple-600">simple</span>
+                    <span>, </span>
+                    <span className="text-purple-600">rapide</span>
+                    <span> et </span>
+                    <span className="text-purple-600">sécurisée</span>
                   </div>
-                  <div />
                 </h1>
-                <p
-                  className={subtitle({
-                    class: "mt-6 max-w-xl mx-auto lg:mx-0",
-                  })}
-                >
+                <p className="mt-8 text-xl text-gray-200 max-w-xl mx-auto lg:mx-0">
                   Réservez facilement vos évènements en quelques clics, avec une
                   gestion flexible et intuitive.
                 </p>
-                <div className="mt-10 flex items-center justify-center lg:justify-start gap-4">
+                <div className="mt-12 flex items-center justify-center lg:justify-start gap-4">
                   <HeroCTA />
                 </div>
               </div>
             </div>
-            <div className="lg:w-1/2 relative">
-              <Image3D
-                id="maquette"
-                src="/maquette.png"
-                alt="Interface MeetSync"
-                className="hidden lg:block"
-              />
-            </div>
+            <Image3D
+              id="maquette"
+              src="/maquette.png"
+              alt="Interface MeetSync"
+              className="hidden lg:block w-full lg:w-2/3 max-w-3xl transform hover:scale-105 transition-all duration-500"
+            />
           </div>
         </div>
       </div>
@@ -88,10 +75,10 @@ export default function Home() {
       <div className="py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div id="product" className="mx-auto max-w-2xl text-center">
-            <h2 className={title({ color: "violet", size: "md" })}>
+            <h2 className="text-3xl font-bold mb-6">
               Tout ce dont vous avez besoin
             </h2>
-            <p className={subtitle({ class: "mt-6" })}>
+            <p className="text-lg text-gray-200">
               Une suite complète d&apos;outils pour gérer vos événements
               efficacement
             </p>
@@ -101,20 +88,20 @@ export default function Home() {
               {features.map((feature, index) => (
                 <Card
                   key={index}
-                  className="group p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  className="group p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer"
                 >
                   <CardBody className="relative">
                     <Image
                       src={feature.image}
                       alt={feature.title}
-                      width={400}
-                      height={300}
+                      width={500}
+                      height={375}
                       className="rounded-xl mb-6 transform group-hover:scale-105 transition-transform duration-500"
                     />
-                    <h3 className="text-xl font-semibold mb-3 text-purple-600">
+                    <h3 className="text-xl font-semibold mb-4 text-purple-600">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                    <p className="text-base text-gray-200">{feature.description}</p>
                   </CardBody>
                 </Card>
               ))}
@@ -127,8 +114,10 @@ export default function Home() {
       <div className="py-24 sm:py-32">
         <div id="review" className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className={title({ color: "violet", size: "md" })}>Vos Avis</h2>
-            <p className={subtitle({ class: "mt-6" })}>
+            <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+              Vos Avis
+            </h2>
+            <p className="text-xl text-gray-200">
               Parceque vos retours sont importants pour nous
             </p>
           </div>

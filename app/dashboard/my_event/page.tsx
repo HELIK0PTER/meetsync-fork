@@ -20,6 +20,12 @@ type Event = {
   has_reminder: boolean;
   animationDelay?: number;
   banner_url?: string;
+  accepted_count: number;
+  waiting_count: number;
+  refused_count: number;
+  invites?: {
+    status: 'accept' | 'waiting' | 'refused';
+  }[];
 };
 
 export default function MesEvenementsPage() {
@@ -50,7 +56,12 @@ export default function MesEvenementsPage() {
       try {
         const { data: userEvents, error: userEventsError } = await supabase
           .from('event')
-          .select('*')
+          .select(`
+            *,
+            invites:invite(
+              status
+            )
+          `)
           .eq('owner_id', userId)
           .order('event_date', { ascending: true });
 
@@ -59,12 +70,23 @@ export default function MesEvenementsPage() {
           throw userEventsError;
         }
 
-        console.log('Événements de l\'utilisateur:', userEvents);
-        const eventsWithDelay = userEvents.map((event, index) => ({
-          ...event,
-          animationDelay: index * 100,
-        }));
-        setActiveEvents(eventsWithDelay);
+        // Calculer les compteurs pour chaque événement
+        const eventsWithCounts = userEvents.map((event) => {
+          const acceptedCount = event.invites?.filter((invite: { status: string }) => invite.status === 'accept').length || 0;
+          const waitingCount = event.invites?.filter((invite: { status: string }) => invite.status === 'waiting').length || 0;
+          const refusedCount = event.invites?.filter((invite: { status: string }) => invite.status === 'refused').length || 0;
+
+          return {
+            ...event,
+            accepted_count: acceptedCount,
+            waiting_count: waitingCount,
+            refused_count: refusedCount,
+            animationDelay: event.animationDelay
+          };
+        });
+
+        console.log('Événements avec compteurs:', eventsWithCounts);
+        setActiveEvents(eventsWithCounts);
       } catch (error) {
         console.error('Erreur lors du chargement des événements:', error);
       } finally {
@@ -160,125 +182,123 @@ export default function MesEvenementsPage() {
       {!isLoading && filteredEvents.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEvents.map((event) => (
-            <Card
+            <Link
+              href={`/dashboard/my_event/${event.id}`}
               key={event.id}
-              className="overflow-hidden rounded-lg flex flex-col animate-slideUp cursor-pointer"
-              style={{
-                filter: hoveredId === event.id ? "none" : "grayscale(100%)",
-                animationDelay: `${event.animationDelay}ms`,
-                animationFillMode: "forwards",
-                transform:
-                  hoveredId === event.id ? "translateY(-8px)" : "translateY(0)",
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                boxShadow:
-                  hoveredId === event.id
-                    ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
-                    : "none",
-              }}
+              className="block"
               onMouseEnter={() => setHoveredId(event.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              {/* Zone 1: Bannière ou fond violet */}
-              <div className="bg-neutral-800 h-36 flex items-center justify-center overflow-hidden relative rounded-t-lg">
-                {event.banner_url ? (
+              <Card
+                className={`relative overflow-hidden transition-all duration-300 transform hover:-translate-y-1 ${
+                  hoveredId === event.id ? "ring-2 ring-purple-500" : ""
+                }`}
+                style={{
+                  animationDelay: `${event.animationDelay}ms`,
+                }}
+              >
+                <div className="relative h-48 w-full">
                   <Image
-                    src={event.banner_url}
-                    alt="Bannière"
-                    className="w-full h-full object-cover"
-                    style={{ minHeight: 120, maxHeight: 160 }}
-                    width={1000}
-                    height={1000}
+                    src={event.banner_url || "/default-event.jpg"}
+                    alt={event.event_name}
+                    fill
+                    className="object-cover"
                   />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-r from-violet-700 to-violet-500"></div>
-                )}
-  
-                {/* Effet de particules lors du survol */}
-                {hoveredId === event.id && (
-                  <div className="absolute inset-0 bg-transparent pointer-events-none" style={{ filter: 'none' }}>
-                    {[...Array(20)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute w-1 h-1 bg-violet-400 shadow-lg rounded-full animate-floatingParticle"
-                        style={{
-                          left: `${Math.random() * 100}%`,
-                          top: `${Math.random() * 100}%`,
-                          animationDuration: `${Math.random() * 2 + 2}s`,
-                          animationDelay: `${Math.random() * 2}s`,
-                          opacity: Math.random() * 0.5 + 0.5,
-                        }}
-                      ></div>
-                    ))}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-xl font-semibold text-white mb-1">
+                      {event.event_name}
+                    </h3>
+                    <p className="text-sm text-gray-200">
+                      {new Date(event.event_date).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
                   </div>
-                )}
-              </div>
-
-              {/* Zone 2: Informations avec effet de survol */}
-              <div className="bg-neutral-900 p-5 flex-grow h-32 flex flex-col justify-center">
-                <h2
-                  className="text-xl font-medium text-white mb-2 transition-all duration-300"
-                  style={{
-                    transform:
-                      hoveredId === event.id
-                        ? "translateX(6px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  {event.event_name}
-                </h2>
-                <p
-                  className="text-sm text-gray-400 mb-1 transition-all duration-300"
-                  style={{
-                    transform:
-                      hoveredId === event.id
-                        ? "translateX(3px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  {new Date(event.event_date).toLocaleDateString('fr-FR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                  })}
-                </p>
-                <p
-                  className="text-sm text-gray-400 transition-all duration-300"
-                  style={{
-                    transform:
-                      hoveredId === event.id
-                        ? "translateX(3px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  {event.city}, {event.country}
-                </p>
-              </div>
-
-              {/* Zone 3: View Details avec effet de glissement */}
-              <div className="bg-neutral-950 relative overflow-hidden group">
-                <div
-                  className="absolute inset-0 bg-blue-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                  style={{ transform: "skewX(-15deg) translateX(-10%)" }}
-                ></div>
-                <div className="p-3 text-center relative z-10">
-                  <Link href={`/dashboard/my_event/${event.id}`}>
-                    <button
-                      className={`text-sm transition-all duration-300 relative ${
-                        hoveredId === event.id
-                          ? "text-blue-400 font-medium"
-                          : "text-white"
-                      }`}
-                    >
-                      <span className="relative z-10">Voir les détails</span>
-                      <span
-                        className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"
-                        style={{ opacity: hoveredId === event.id ? 1 : 0 }}
-                      ></span>
-                    </button>
-                  </Link>
                 </div>
-              </div>
-            </Card>
+                <div className="p-4">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span className="text-sm text-gray-300">{event.city || "Lieu non spécifié"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="text-sm text-gray-300">
+                        {event.price === null || event.price === 0 ? (
+                          <span className="text-green-400">Gratuit</span>
+                        ) : (
+                          `${event.price.toFixed(2)}€`
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                      </svg>
+                      <span className="text-sm">
+                        {event.waiting_count > 0 && (
+                          <span className="text-yellow-400">{event.waiting_count} en attente</span>
+                        )}
+                        {event.accepted_count > 0 && (
+                          <span className="text-green-400">{event.accepted_count > 0 && event.waiting_count > 0 && ", "}{event.accepted_count} accepté{event.accepted_count !== 1 ? "s" : ""}</span>
+                        )}
+                        {event.refused_count > 0 && (
+                          <span className="text-red-400">{(event.accepted_count > 0 || event.waiting_count > 0) && ", "}{event.refused_count} refusé{event.refused_count !== 1 ? "s" : ""}</span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

@@ -5,6 +5,7 @@ import { Card } from "@heroui/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
+import DynamicBackground from "@/app/components/DynamicBackground";
 
 // Définition du type pour les invitations
 interface Invitation {
@@ -26,9 +27,6 @@ interface Invitation {
 
   // Informations additionnelles
   attendee_count: number;
-  
-  // Pour l'animation
-  animationDelay?: number;
 }
 
 export default function MesInvitationsPage() {
@@ -55,49 +53,30 @@ export default function MesInvitationsPage() {
       if (error) {
         console.error("Erreur lors de la récupération des invitations:", error);
       } else {
-        // Formater les invitations pour l'affichage
-        const formattedInvitations = data.map((invitation, index) => ({
-          ...invitation,
-          animationDelay: index * 100,
-        }));
-        return formattedInvitations as Invitation[];
+        setActiveInvitations(data as Invitation[]);
       }
-      return [];
+      setIsLoading(false);
     };
-    fetchInvitations()
-      .then((formattedInvitations) => {
-        setActiveInvitations(formattedInvitations);
-        console.log(formattedInvitations);
-        console.log(activeInvitations);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la récupération des invitations:", error);
-        setIsLoading(false);
-      });
+    fetchInvitations();
   }, [supabase]);
 
   const filteredInvitations = activeInvitations.filter((invitation) => {
-    // Filtre par terme de recherche
     const matchesSearch = invitation.event_name
       ? invitation.event_name.toLowerCase().includes(searchTerm.toLowerCase())
       : false;
-
-    // Filtre par statut
     const matchesStatus =
       statusFilter === "all" || invitation.status === statusFilter;
-
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status: Invitation["status"]) => {
     switch (status) {
       case "waiting":
-        return "text-yellow-400";
+        return "text-yellow-400 group-hover:text-yellow-300";
       case "accept":
-        return "text-green-400";
+        return "text-green-400 group-hover:text-green-300";
       case "refused":
-        return "text-red-400";
+        return "text-red-400 group-hover:text-red-300";
       default:
         return "text-gray-400";
     }
@@ -160,10 +139,8 @@ export default function MesInvitationsPage() {
     }
   };
 
-  // Fonction pour formater la date
   const formatDate = (dateString: string) => {
     if (!dateString) return "Date non spécifiée";
-    
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('fr-FR', {
       day: 'numeric',
@@ -175,84 +152,77 @@ export default function MesInvitationsPage() {
   };
 
   return (
-    <>
-      {/* Header */}
-      <div
-        className="mb-8 opacity-0 animate-fadeIn"
-        style={{ animationDelay: "200ms", animationFillMode: "forwards" }}
-      >
+    <div className="min-h-screen bg-black p-6 relative overflow-hidden">
+      <DynamicBackground />
+      
+      <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
         <h1 className="text-3xl font-bold text-white text-center mb-6">
           Mes Invitations
         </h1>
 
-        {/* Zone de recherche et filtres dans un conteneur flexbox */}
-        <div className="max-w-6xl mx-auto">
-          {/* Barre de recherche */}
-          <div className="mb-4 w-full max-w-sm mx-auto md:mx-0">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Rechercher une invitation..."
-                className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <div className="absolute right-3 top-2.5 text-gray-400">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </div>
+        <div className="mb-8">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Rechercher une invitation..."
+              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="absolute right-3 top-2.5 text-gray-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
             </div>
           </div>
 
-          {/* Filtres de statut */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-3">
+          <div className="flex gap-4 mt-4 justify-center">
             <button
-              className={`px-4 py-2 rounded-lg transition-all ${
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
                 statusFilter === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                  ? "bg-purple-600 text-white scale-105 ring-2 ring-purple-500"
+                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:scale-105 hover:ring-2 hover:ring-purple-500"
               }`}
               onClick={() => setStatusFilter("all")}
             >
               Toutes les invitations
             </button>
             <button
-              className={`px-4 py-2 rounded-lg transition-all ${
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
                 statusFilter === "waiting"
-                  ? "bg-yellow-600 text-white"
-                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                  ? "bg-yellow-500 text-white scale-105 ring-2 ring-yellow-400"
+                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:scale-105 hover:ring-2 hover:ring-yellow-400"
               }`}
               onClick={() => setStatusFilter("waiting")}
             >
               En attente
             </button>
             <button
-              className={`px-4 py-2 rounded-lg transition-all ${
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
                 statusFilter === "accept"
-                  ? "bg-green-600 text-white"
-                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                  ? "bg-green-500 text-white scale-105 ring-2 ring-green-400"
+                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:scale-105 hover:ring-2 hover:ring-green-400"
               }`}
               onClick={() => setStatusFilter("accept")}
             >
               Acceptées
             </button>
             <button
-              className={`px-4 py-2 rounded-lg transition-all ${
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
                 statusFilter === "refused"
-                  ? "bg-red-600 text-white"
-                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                  ? "bg-red-500 text-white scale-105 ring-2 ring-red-400"
+                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:scale-105 hover:ring-2 hover:ring-red-400"
               }`}
               onClick={() => setStatusFilter("refused")}
             >
@@ -262,7 +232,6 @@ export default function MesInvitationsPage() {
         </div>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
           <div className="col-span-full text-center text-xl text-gray-400 py-16">
@@ -270,234 +239,155 @@ export default function MesInvitationsPage() {
           </div>
         ) : filteredInvitations.length > 0 ? (
           filteredInvitations.map((invitation) => (
-            <Card
+            <Link 
+              href={`/dashboard/my_event/${invitation.event_id}`}
               key={invitation.invite_id}
-              className="overflow-hidden rounded-lg flex flex-col opacity-0 animate-slideUp cursor-pointer"
-              style={{
-                animationDelay: `${invitation.animationDelay}ms`,
-                animationFillMode: "forwards",
-                transform:
-                  hoveredId === invitation.invite_id
-                    ? "translateY(-8px)"
-                    : "translateY(0)",
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                boxShadow:
-                  hoveredId === invitation.invite_id
-                    ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
-                    : "none",
-              }}
-              onMouseEnter={() => setHoveredId(invitation.invite_id)}
-              onMouseLeave={() => setHoveredId(null)}
+              className="block transition-all duration-300 hover:scale-105 hover:ring-2 hover:ring-purple-500 rounded-lg"
             >
-              {/* Zone 1: Visuel - Utiliser banner_url si disponible */}
-              <div className="bg-neutral-800 h-36 flex items-center justify-center overflow-hidden relative">
-                {invitation.banner_url ? (
-                  <img 
-                    src={invitation.banner_url} 
-                    alt={invitation.event_name || "Événement"} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <>
-                    <div
-                      className={`w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center relative ${
-                        hoveredId === invitation.invite_id ? "animate-pulse" : ""
-                      }`}
-                    >
-                      {hoveredId === invitation.invite_id && (
-                        <div className="absolute inset-0 bg-neutral-700 rounded-full animate-ripple"></div>
-                      )}
-                      <div className="w-6 h-6 bg-neutral-600 rounded-full relative z-10"></div>
-                    </div>
-
-                    {hoveredId === invitation.invite_id && (
-                      <div className="absolute inset-0 bg-neutral-800">
-                        {[...Array(20)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="absolute w-1 h-1 bg-neutral-600 rounded-full animate-floatingParticle"
-                            style={{
-                              left: `${Math.random() * 100}%`,
-                              top: `${Math.random() * 100}%`,
-                              animationDuration: `${Math.random() * 2 + 2}s`,
-                              animationDelay: `${Math.random() * 2}s`,
-                              opacity: Math.random() * 0.5 + 0.1,
-                            }}
-                          ></div>
-                        ))}
+              <Card
+                className="overflow-hidden rounded-lg flex flex-col bg-neutral-900 hover:bg-neutral-800/50 transition-all duration-300 group h-full"
+                onMouseEnter={() => setHoveredId(invitation.invite_id)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
+                <div className="relative h-48 bg-neutral-800">
+                  {invitation.banner_url ? (
+                    <img 
+                      src={invitation.banner_url} 
+                      alt={invitation.event_name || "Événement"} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-neutral-600 rounded-full"></div>
                       </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* Zone 2: Infos */}
-              <div className="bg-neutral-900 p-5 flex-grow h-40 flex flex-col justify-center">
-                <h2
-                  className="text-xl font-medium text-white mb-2 transition-all duration-300"
-                  style={{
-                    transform:
-                      hoveredId === invitation.invite_id
-                        ? "translateX(6px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  {invitation.event_name || "Sans titre"}
-                </h2>
-                <p
-                  className="text-sm text-gray-400 mb-1 transition-all duration-300"
-                  style={{
-                    transform:
-                      hoveredId === invitation.invite_id
-                        ? "translateX(3px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  {formatDate(invitation.event_date)}
-                </p>
-                <p
-                  className="text-sm text-gray-400 mb-1 transition-all duration-300"
-                  style={{
-                    transform:
-                      hoveredId === invitation.invite_id
-                        ? "translateX(3px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  <span className="font-medium">{invitation.city || "Lieu non spécifié"}</span>
-                </p>
-                <p
-                  className="text-sm text-gray-400 mb-2 transition-all duration-300"
-                  style={{
-                    transform:
-                      hoveredId === invitation.invite_id
-                        ? "translateX(3px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  {invitation.attendee_count} participants
-                  {invitation.price > 0 && ` • ${invitation.price.toFixed(2)}€`}
-                </p>
-                <div
-                  className={`text-sm font-medium flex items-center transition-all duration-300 ${getStatusColor(invitation.status)}`}
-                  style={{
-                    transform:
-                      hoveredId === invitation.invite_id
-                        ? "translateX(3px)"
-                        : "translateX(0)",
-                  }}
-                >
-                  {getStatusIcon(invitation.status)}
-                  <span className="capitalize">
-                    {invitation.status === "waiting"
-                      ? "En attente"
-                      : invitation.status === "accept"
-                      ? "Acceptée"
-                      : invitation.status === "refused"
-                        ? "Refusée"
-                        : invitation.status}
-                  </span>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Zone 3: View Details */}
-              <div className="bg-neutral-950 relative overflow-hidden">
-                <div
-                  className="absolute inset-0 bg-blue-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                  style={{ transform: "skewX(-15deg) translateX(-10%)" }}
-                ></div>
-                <div className="p-3 text-center relative z-10">
-                  <Link href={`/dashboard/my_event/${invitation.event_id}`}>
-                    <button
-                      className="text-sm px-4 py-1 rounded-md transition-all duration-300 relative text-white hover:text-blue-400"
-                      onMouseEnter={() => setHoveredButton(invitation.invite_id)}
-                      onMouseLeave={() => setHoveredButton(null)}
-                    >
-                      <span className="relative z-10">Voir les détails</span>
-                      <span
-                        className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300"
-                        style={{
-                          width:
-                            hoveredButton === invitation.invite_id ? "100%" : "0%",
-                          opacity: hoveredButton === invitation.invite_id ? 1 : 0,
-                        }}
-                      ></span>
-                    </button>
-                  </Link>
+                <div className="p-5 flex-grow">
+                  <h2 
+                    className="text-xl font-medium text-white mb-2 transition-all duration-300"
+                    style={{
+                      transform: hoveredId === invitation.invite_id ? "translateX(8px)" : "translateX(0)"
+                    }}
+                  >
+                    {invitation.event_name || "Sans titre"}
+                  </h2>
+                  <p 
+                    className="text-sm text-gray-400 mb-1 transition-all duration-300"
+                    style={{
+                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    {formatDate(invitation.event_date)}
+                  </p>
+                  <p 
+                    className="text-sm text-gray-400 mb-1 transition-all duration-300"
+                    style={{
+                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span className="font-medium">{invitation.city || "Lieu non spécifié"}</span>
+                    </div>
+                  </p>
+                  <p 
+                    className="text-sm text-gray-400 mb-2 transition-all duration-300"
+                    style={{
+                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {invitation.price === null || invitation.price === 0 ? (
+                        <span className="text-green-400">Gratuit</span>
+                      ) : (
+                        <span>{invitation.price.toFixed(2)}€</span>
+                      )}
+                    </div>
+                  </p>
+                  <p 
+                    className="text-sm text-gray-400 mb-2 transition-all duration-300"
+                    style={{
+                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                      </svg>
+                      <span>{invitation.attendee_count} participant{invitation.attendee_count !== 1 ? "s" : ""}</span>
+                    </div>
+                  </p>
+                  <div 
+                    className={`
+                      flex items-center gap-2 px-3 py-1.5 rounded-lg
+                      ${getStatusColor(invitation.status)}
+                      transition-all duration-300
+                    `}
+                  >
+                    {getStatusIcon(invitation.status)}
+                    <span className="font-medium">
+                      {invitation.status === "waiting" && "En attente"}
+                      {invitation.status === "accept" && "Acceptée"}
+                      {invitation.status === "refused" && "Refusée"}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           ))
         ) : (
           <div className="col-span-full text-center text-xl text-gray-400 py-16">
-            Aucune invitation ne correspond à votre recherche
+            Aucune invitation trouvée
           </div>
         )}
       </div>
-
-      {/* Animations globales */}
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes ripple {
-          0% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-          100% {
-            transform: scale(2.5);
-            opacity: 0;
-          }
-        }
-
-        @keyframes floatingParticle {
-          0% {
-            transform: translateY(0) translateX(0);
-            opacity: 0;
-          }
-          50% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-40px) translateX(20px);
-            opacity: 0;
-          }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.8s ease-out;
-        }
-
-        .animate-slideUp {
-          animation: slideUp 0.8s ease-out;
-        }
-
-        .animate-ripple {
-          animation: ripple 1.5s infinite;
-        }
-
-        .animate-floatingParticle {
-          animation: floatingParticle 3s infinite;
-        }
-      `}</style>
-    </>
+    </div>
   );
 }

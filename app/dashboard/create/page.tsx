@@ -108,145 +108,232 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center m-auto  w-full pb-10 h-full pt-10 min-h-screen">
-      <span className={title({ color: "violet" })}>
-        Création d'événements&nbsp;
-      </span>
-      <Spacer y={4} />
-      {isSubmitting && (
-        <div className="flex flex-col items-center justify-center w-full py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-white">Création de l'événement...</p>
+    <div className="flex flex-col items-center justify-center m-auto w-full pb-10 h-full pt-10 min-h-screen relative overflow-hidden">
+      {/* Éléments décoratifs animés */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Cercles lumineux */}
+        <div className="absolute left-0 top-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute right-0 bottom-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        
+        {/* Lignes animées */}
+        <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-purple-500/20 to-transparent animate-pulse"></div>
+        <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-pink-500/20 to-transparent animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+        
+        {/* Particules flottantes */}
+        <div className="absolute left-10 top-1/4 w-2 h-2 bg-purple-400/30 rounded-full animate-float"></div>
+        <div className="absolute right-20 top-3/4 w-2 h-2 bg-purple-400/30 rounded-full animate-float" style={{ animationDelay: '1.1s' }}></div>
+        <div className="absolute left-1/3 top-1/2 w-2 h-2 bg-indigo-400/30 rounded-full animate-float" style={{ animationDelay: '1.3s' }}></div>
+      </div>
+
+      <div className="w-full max-w-xl mx-auto px-4 relative">
+        <div className="text-center mb-8">
+          <span className={title({ color: "violet" })}>
+            Création d'événements&nbsp;
+          </span>
+          <p className="text-gray-400 mt-2">Remplissez les informations ci-dessous pour créer votre événement</p>
         </div>
-      )}
-      {!isSubmitting && (
-        <Form
-          className="w-full max-w-xs flex flex-col gap-4"
-          onReset={() => setAction("reset")}
-          onSubmit={handleSubmit}
-        >
-          <Input
-            isRequired
-            errorMessage="Merci d'entrer un nom d'événement valide"
-            label="Nom de l'événement"
-            labelPlacement="outside"
-            name="event_name"
-            placeholder="Entrer le nom de l'événement"
-            type="text"
-          />
-
-          <I18nProvider locale="fr">
-            <DatePicker
-              hideTimeZone
-              showMonthAndYearPickers
-              defaultValue={now(getLocalTimeZone())}
-              minValue={now(getLocalTimeZone())}
-              label="date de l'événéments"
-              name="event_date"
-              variant="bordered"
-            />
-          </I18nProvider>
-          <Divider />
-          <p className="text-xl">Emplacement</p>
-
-          <Input
-            isRequired
-            errorMessage="Merci d'entrer un nom d'événements valide"
-            label="Pays"
-            labelPlacement="outside"
-            name="country"
-            placeholder="Entré le pays de l'événement"
-            type="text"
-          />
-
-          <Input
-            isRequired
-            errorMessage="Merci d'entrer un nom d'événements valide"
-            label="Ville"
-            labelPlacement="outside"
-            name="city"
-            placeholder="Entrer le nom de la ville"
-            type="text"
-          />
-
-          <Input
-            isRequired
-            errorMessage="Merci d'entrer un nom d'événements valide"
-            label="Rue"
-            labelPlacement="outside"
-            name="rue"
-            placeholder="Entrer le nom de la rue et le numéro"
-            type="text"
-          />
-
-          <Divider />
-          <p className="text-xl">Autres</p>
-
-          <Checkbox isSelected={isPublic} onChange={() => setIsPublic(!isPublic)}>
-            Événement public
-          </Checkbox>
-
-          <Checkbox isSelected={isPaid} onChange={handleCheckboxChange}>
-            Événement payant
-          </Checkbox>
-
-          {isPaid && (
-            <>
-              <Input
-                isRequired
-                errorMessage="Merci d'entrer un prix valide"
-                label="Prix"
-                labelPlacement="outside"
-                name="price"
-                placeholder="Entrer le prix de l'événement"
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-              <Input
-                isRequired
-                errorMessage="Merci d'entrer un email PayPal valide"
-                label="Email PayPal"
-                labelPlacement="outside"
-                name="paypal_email"
-                placeholder="Entrer l'email PayPal du vendeur"
-                type="email"
-                value={paypalEmail}
-                onChange={(e) => setPaypalEmail(e.target.value)}
-              />
-            </>
-          )}
-
-          <Checkbox onClick={() => setHasReminder(!hasReminder)}>
-            Rappel automatique
-          </Checkbox>
-          <p className="text-gray-500 text-xs">
-            Rappel automatique est seulement pour les offres{" "}
-            <span className="text-violet-500">Plus</span> et{" "}
-            <span className="text-violet-500">Pro</span>
-          </p>
-
-          <Checkbox
-            isDisabled={isEmailDisabled}
-            onClick={() => setIsEmailDisabled(!isEmailDisabled)}
-          >
-            Email personnalisé
-          </Checkbox>
-          <p className="text-gray-500 text-xs">
-            Email personnalisé est seulement pour les offres{" "}
-            <span className="text-violet-500">Pro</span>
-          </p>
-
-          <div className="flex gap-2">
-            <Button color="secondary" type="submit">
-              Submit
-            </Button>
-            <Button type="reset" variant="flat">
-              Reset
-            </Button>
+        <Spacer y={4} />
+        {isSubmitting && (
+          <div className="flex flex-col items-center justify-center w-full py-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+            <p className="text-white">Création de l'événement...</p>
           </div>
-        </Form>
-      )}
+        )}
+        {!isSubmitting && (
+          <Form
+            className="w-full flex flex-col gap-8 items-center"
+            onReset={() => setAction("reset")}
+            onSubmit={handleSubmit}
+          >
+            <div className="space-y-6 w-full max-w-md">
+              <Input
+                isRequired
+                errorMessage="Merci d'entrer un nom d'événement valide"
+                label="Nom de l'événement"
+                labelPlacement="outside"
+                name="event_name"
+                placeholder="Nom de l'événement"
+                type="text"
+                classNames={{
+                  input: "bg-black/40 border-neutral-800",
+                  label: "text-gray-300"
+                }}
+              />
+
+              <I18nProvider locale="fr">
+                <DatePicker
+                  hideTimeZone
+                  showMonthAndYearPickers
+                  defaultValue={now(getLocalTimeZone())}
+                  minValue={now(getLocalTimeZone())}
+                  label="Date de l'événement"
+                  name="event_date"
+                  variant="bordered"
+                  classNames={{
+                    input: "bg-black/40 border-neutral-800",
+                    label: "text-gray-300",
+                    calendar: "text-white"
+                  }}
+                />
+              </I18nProvider>
+
+              <Input
+                isRequired
+                errorMessage="Merci d'entrer un pays valide"
+                label="Pays"
+                labelPlacement="outside"
+                name="country"
+                placeholder="Pays"
+                type="text"
+                classNames={{
+                  input: "bg-black/40 border-neutral-800",
+                  label: "text-gray-300"
+                }}
+              />
+
+              <Input
+                isRequired
+                errorMessage="Merci d'entrer une ville valide"
+                label="Ville"
+                labelPlacement="outside"
+                name="city"
+                placeholder="Ville"
+                type="text"
+                classNames={{
+                  input: "bg-black/40 border-neutral-800",
+                  label: "text-gray-300"
+                }}
+              />
+
+              <Input
+                isRequired
+                errorMessage="Merci d'entrer une adresse valide"
+                label="Rue"
+                labelPlacement="outside"
+                name="rue"
+                placeholder="Rue et numéro"
+                type="text"
+                classNames={{
+                  input: "bg-black/40 border-neutral-800",
+                  label: "text-gray-300"
+                }}
+              />
+            </div>
+
+            <Divider className="my-2 w-full max-w-md" />
+            
+            <div className="space-y-6 w-full max-w-md">
+              <div className="flex flex-col gap-6">
+                <Checkbox 
+                  isSelected={isPublic} 
+                  onChange={() => setIsPublic(!isPublic)}
+                  classNames={{
+                    label: "text-gray-300 text-lg",
+                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
+                  }}
+                >
+                  Événement public
+                </Checkbox>
+
+                <div className="flex flex-col gap-6">
+                  <Checkbox 
+                    isSelected={isPaid} 
+                    onChange={handleCheckboxChange}
+                    classNames={{
+                      label: "text-gray-300 text-lg",
+                      wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
+                    }}
+                  >
+                    Événement payant
+                  </Checkbox>
+
+                  {isPaid && (
+                    <div className="flex flex-col gap-6 ml-6 border-l-2 border-purple-500/20 pl-4">
+                      <div>
+                        <Input
+                          isRequired
+                          errorMessage="Merci d'entrer un prix valide"
+                          label="Prix"
+                          labelPlacement="outside"
+                          name="price"
+                          placeholder="Prix en euros"
+                          type="number"
+                          value={price}
+                          onChange={(e) => setPrice(e.target.value)}
+                          classNames={{
+                            input: "bg-black/40 border-neutral-800",
+                            label: "text-gray-300"
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          isRequired
+                          errorMessage="Merci d'entrer un email PayPal valide"
+                          label="Email PayPal"
+                          labelPlacement="outside"
+                          name="paypal_email"
+                          placeholder="Email PayPal"
+                          type="email"
+                          value={paypalEmail}
+                          onChange={(e) => setPaypalEmail(e.target.value)}
+                          classNames={{
+                            input: "bg-black/40 border-neutral-800",
+                            label: "text-gray-300"
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <Checkbox 
+                  onClick={() => setHasReminder(!hasReminder)}
+                  classNames={{
+                    label: "text-gray-300 text-lg",
+                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
+                  }}
+                >
+                  Rappel automatique
+                </Checkbox>
+              </div>
+
+              <div className="space-y-2 text-center">
+                <Checkbox
+                  isDisabled={isEmailDisabled}
+                  onClick={() => setIsEmailDisabled(!isEmailDisabled)}
+                  classNames={{
+                    label: "text-gray-300"
+                  }}
+                >
+                  Email personnalisé
+                </Checkbox>
+                <p className="text-gray-500 text-xs">
+                  Email personnalisé est seulement pour les offres{" "}
+                  <span className="text-purple-400">Pro</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4 justify-center w-full max-w-md">
+              <Button 
+                type="reset" 
+                variant="flat"
+                className="bg-black/40 hover:bg-black/60 text-gray-300 border border-neutral-800"
+              >
+                Réinitialiser
+              </Button>
+              <Button 
+                color="secondary" 
+                type="submit"
+                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white"
+              >
+                Créer l'événement
+              </Button>
+            </div>
+          </Form>
+        )}
+      </div>
     </div>
   );
 }

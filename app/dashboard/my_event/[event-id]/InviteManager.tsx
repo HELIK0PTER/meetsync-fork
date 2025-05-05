@@ -8,6 +8,10 @@ import { User } from "@supabase/supabase-js";
 type Event = {
   id: string;
   owner_id: string;
+  event_name: string;
+  event_date: string;
+  city: string;
+  country: string;
 };
 
 type Invite = {
@@ -78,30 +82,55 @@ export default function InviteManager({
       return;
     }
 
-    const { data, error: supabaseError } = await supabase
-      .from("invite")
-      .insert([
-        {
-          event_id: event.id,
-          email: inviteName.trim().toLowerCase(),
-          must_pay: invitePay,
-          status: "waiting",
+    try {
+      // Ajout de l'invitation dans la base de données
+      const { data, error: supabaseError } = await supabase
+        .from("invite")
+        .insert([
+          {
+            event_id: event.id,
+            email: inviteName.trim().toLowerCase(),
+            must_pay: invitePay,
+            status: "waiting",
+          },
+        ])
+        .select();
+
+      if (supabaseError) {
+        setError(
+          supabaseError.message || "Erreur lors de l'ajout de l'invitation."
+        );
+        setAddingInvite(false);
+        return;
+      }
+
+      // Envoi de l'email d'invitation
+      const response = await fetch('/api/send-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ])
-      .select();
+        body: JSON.stringify({
+          email: inviteName.trim().toLowerCase(),
+          eventName: event.event_name,
+          eventDate: event.event_date,
+          eventLocation: `${event.city}, ${event.country}`
+        }),
+      });
 
-    if (supabaseError) {
-      setError(
-        supabaseError.message || "Erreur lors de l'ajout de l'invitation."
-      );
+      if (!response.ok) {
+        console.error('Erreur lors de l\'envoi de l\'email');
+      }
+
+      setInviteName("");
+      setInvitePay(true);
+      setShowModal(false);
+    } catch (error) {
+      console.error('Erreur:', error);
+      setError("Une erreur est survenue lors de l'ajout de l'invitation.");
+    } finally {
       setAddingInvite(false);
-      return;
     }
-
-    setInviteName("");
-    setInvitePay(true);
-    setShowModal(false);
-    setAddingInvite(false);
   };
 
   return (
@@ -110,11 +139,25 @@ export default function InviteManager({
         <h2 className="text-2xl font-semibold">Invitations</h2>
         {user?.id === event.owner_id && (
           <Button
-            className="text-white px-4 py-2 rounded-lg transition-all"
+            className="ml-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 flex items-center gap-2 group"
             color="secondary"
             onClick={() => setShowModal(true)}
-        >
-            + Ajouter une invitation
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Ajouter une invitation
           </Button>
         )}
       </div>
@@ -127,29 +170,41 @@ export default function InviteManager({
       ) : (
         <Listbox aria-label="Invitations" className="bg-neutral-900 rounded-lg">
           {invitations.map((inv, index) => (
-            <ListboxItem key={index} textValue={inv.email || "Inconnu"}>
-              <div className="flex items-center gap-3">
+            <ListboxItem 
+              key={index} 
+              textValue={inv.email || "Inconnu"}
+              className="p-4 hover:bg-neutral-800/50 transition-all duration-300"
+            >
+              <div className="flex items-center gap-4 w-full">
                 <Avatar
                   name={inv.email || "Inconnu"}
-                  size="sm"
+                  size="lg"
                   src={inv.profiles?.profile_picture || undefined}
+                  className="ring-2 ring-neutral-700 flex-shrink-0"
                 />
-                <div>
-                  <div className="font-medium">{inv.email || "Inconnu"}</div>
-                  <div className="text-xs text-gray-400 flex gap-2 items-center">
-                    <span>{inv.must_pay ? "Payant" : "Gratuit"}</span>
-                    <span
-                      className={
-                        inv.status === "pending"
-                          ? "text-yellow-400"
-                          : inv.status === "accepted"
-                            ? "text-green-400"
-                            : inv.status === "refused"
-                              ? "text-red-400"
-                              : "text-gray-400"
-                      }
-                    >
-                      {inv.status}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-base mb-1 whitespace-nowrap overflow-x-auto max-w-none">{inv.email || "Inconnu"}</div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      inv.must_pay 
+                        ? "bg-purple-500/20 text-purple-400" 
+                        : "bg-green-500/20 text-green-400"
+                    }`}>
+                      {inv.must_pay ? "Payant" : "Gratuit"}
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      inv.status === "waiting"
+                        ? "bg-yellow-500/20 text-yellow-400"
+                        : inv.status === "accepted"
+                          ? "bg-green-500/20 text-green-400"
+                          : inv.status === "refused"
+                            ? "bg-red-500/20 text-red-400"
+                            : "bg-gray-500/20 text-gray-400"
+                    }`}>
+                      {inv.status === "waiting" ? "En attente" : 
+                       inv.status === "accepted" ? "Accepté" : 
+                       inv.status === "refused" ? "Refusé" : 
+                       inv.status}
                     </span>
                   </div>
                 </div>
@@ -158,7 +213,7 @@ export default function InviteManager({
           ))}
         </Listbox>
       )}
-      {showModal && user?.id === event.owner_id && (
+      {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div className="bg-neutral-900 p-8 rounded-lg w-full max-w-md shadow-lg relative">
             <button
