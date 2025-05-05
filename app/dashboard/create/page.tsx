@@ -99,12 +99,12 @@ export default function Dashboard() {
     // On récupère l'id de l'événement créé
     const eventId = inserted && inserted[0]?.id;
     // Attendre 1 seconde puis rediriger
-    // setTimeout(() => {
-    //   setIsSubmitting(false);
-    //   if (eventId) {
-    //     router.push(`/dashboard/event/${eventId}`);
-    //   }
-    // }, 1000);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      if (eventId) {
+        router.push(`/dashboard/my_event/${eventId}`);
+      }
+    }, 1000);
   };
 
   return (
