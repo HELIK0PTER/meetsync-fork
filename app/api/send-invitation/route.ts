@@ -1,10 +1,10 @@
-import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 
 export async function POST(request: Request) {
   try {
-    const { email, eventName, eventDate, eventLocation } = await request.json();
+    const { email, eventName, eventDate, eventLocation, eventId } =
+      await request.json();
 
     // Configuration du transporteur d'email
     const transporter = nodemailer.createTransport({
@@ -18,12 +18,12 @@ export async function POST(request: Request) {
     });
 
     // Formatage de la date
-    const formattedDate = new Date(eventDate).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    const formattedDate = new Date(eventDate).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
     // Envoi de l'email
@@ -164,7 +164,7 @@ export async function POST(request: Request) {
 
               <!-- Bouton d'action -->
               <div style="text-align: center; margin: 30px 0;">
-                <a href="http://localhost:3000/dashboard/my_invit" class="button" style="color: #ffffff !important;">
+                <a href="http://localhost:3000/dashboard/my_event/${eventId}" class="button" style="color: #ffffff !important;">
                   Voir l'invitation
                 </a>
               </div>
@@ -185,10 +185,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'email:', error);
+    console.error("Erreur lors de l'envoi de l'email:", error);
     return NextResponse.json(
-      { error: 'Erreur lors de l\'envoi de l\'email' },
+      { error: "Erreur lors de l'envoi de l'email" },
       { status: 500 }
     );
   }
-} 
+}

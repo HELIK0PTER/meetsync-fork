@@ -79,7 +79,7 @@ export default function EventContent({ event }: { event: Event }) {
   };
 
   return (
-    <div className="min-h-screen bg-black p-0 md:p-10 text-white">
+    <div className="bg-black p-0 md:p-10 text-white">
       {/* Contenu principal */}
       <div>
         {/* Bannière avec upload */}
@@ -98,7 +98,7 @@ export default function EventContent({ event }: { event: Event }) {
             />
           ) : (
             <div
-              className="w-full h-48 bg-gradient-to-r from-violet-700 to-violet-500 rounded-b-xl"
+              className="w-full h-48 bg-gradient-to-r from-violet-700 to-violet-500 rounded-xl"
               style={{ minHeight: 180, maxHeight: 220 }}
             ></div>
           )}
@@ -132,8 +132,8 @@ export default function EventContent({ event }: { event: Event }) {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          <Card className="bg-neutral-900 p-6 rounded-lg w-full md:w-1/2 mb-6 md:mb-0">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <Card className="bg-neutral-900 p-6 rounded-lg w-full lg:w-1/2 mb-6 md:mb-0">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                 Informations de l'événement
@@ -189,7 +189,7 @@ export default function EventContent({ event }: { event: Event }) {
               <li className="text-gray-400 text-xs mt-4">ID : {event.id}</li>
             </ul>
           </Card>
-          <div className="w-full md:w-1/2">
+          <div className="w-full lg:w-1/2">
             <InviteManager user={user} event={event} />
           </div>
         </div>

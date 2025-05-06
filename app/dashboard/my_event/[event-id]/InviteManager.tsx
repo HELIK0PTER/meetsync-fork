@@ -15,18 +15,14 @@ type Event = {
 };
 
 type Invite = {
-  id: string;
+  invite_id: string;
   email: string;
-  profiles: {
-    id: string;
-    profile_picture: string;
-    email: string;
-  };
   must_pay: boolean;
   status: string;
   event_id: string;
   user_id: string;
-  created_at: string;
+  display_name: string;
+  profile_picture: string;
 };
 
 export default function InviteManager({
@@ -49,21 +45,21 @@ export default function InviteManager({
     const fetchInvitations = async () => {
       // Récupération des invitations avec jointure automatique sur les profils
       const { data, error: inviteError } = await supabase
-        .from("invite")
+        .from("event_guests")
         .select(
           `
-          id,
+          invite_id,
           email,
           must_pay,
           status,
           event_id,
           user_id,
-          created_at,
-          profiles!inner(id, profile_picture, email)
+          display_name,
+          profile_picture
         `
         )
         .eq("event_id", event.id)
-        .order("id", { ascending: true });
+        .order("invite_id", { ascending: true });
 
       const error = inviteError;
       if (!error && data) setInvitations(data as unknown as Invite[]);
@@ -105,28 +101,29 @@ export default function InviteManager({
       }
 
       // Envoi de l'email d'invitation
-      const response = await fetch('/api/send-invitation', {
-        method: 'POST',
+      const response = await fetch("/api/send-invitation", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: inviteName.trim().toLowerCase(),
           eventName: event.event_name,
           eventDate: event.event_date,
-          eventLocation: `${event.city}, ${event.country}`
+          eventLocation: `${event.city}, ${event.country}`,
+          eventId: event.id,
         }),
       });
 
       if (!response.ok) {
-        console.error('Erreur lors de l\'envoi de l\'email');
+        console.error("Erreur lors de l'envoi de l'email");
       }
 
       setInviteName("");
       setInvitePay(true);
       setShowModal(false);
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error("Erreur:", error);
       setError("Une erreur est survenue lors de l'ajout de l'invitation.");
     } finally {
       setAddingInvite(false);
@@ -134,7 +131,7 @@ export default function InviteManager({
   };
 
   return (
-    <Card className="bg-neutral-900 p-6 rounded-lg w-full md:w-1/2">
+    <Card className="bg-neutral-900 p-6 rounded-lg w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Invitations</h2>
         {user?.id === event.owner_id && (
@@ -170,41 +167,50 @@ export default function InviteManager({
       ) : (
         <Listbox aria-label="Invitations" className="bg-neutral-900 rounded-lg">
           {invitations.map((inv, index) => (
-            <ListboxItem 
-              key={index} 
+            <ListboxItem
+              key={index}
               textValue={inv.email || "Inconnu"}
               className="p-4 hover:bg-neutral-800/50 transition-all duration-300"
             >
               <div className="flex items-center gap-4 w-full">
                 <Avatar
-                  name={inv.email || "Inconnu"}
+                  name={inv.display_name || "Inconnu"}
                   size="lg"
-                  src={inv.profiles?.profile_picture || undefined}
+                  src={inv.profile_picture || undefined}
                   className="ring-2 ring-neutral-700 flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-base mb-1 whitespace-nowrap overflow-x-auto max-w-none">{inv.email || "Inconnu"}</div>
+                  <div className="font-medium text-base mb-1 whitespace-nowrap overflow-x-auto max-w-none">
+                    {inv.email || "Inconnu"}
+                  </div>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      inv.must_pay 
-                        ? "bg-purple-500/20 text-purple-400" 
-                        : "bg-green-500/20 text-green-400"
-                    }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        inv.must_pay
+                          ? "bg-purple-500/20 text-purple-400"
+                          : "bg-green-500/20 text-green-400"
+                      }`}
+                    >
                       {inv.must_pay ? "Payant" : "Gratuit"}
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      inv.status === "waiting"
-                        ? "bg-yellow-500/20 text-yellow-400"
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        inv.status === "waiting"
+                          ? "bg-yellow-500/20 text-yellow-400"
+                          : inv.status === "accepted"
+                            ? "bg-green-500/20 text-green-400"
+                            : inv.status === "refused"
+                              ? "bg-red-500/20 text-red-400"
+                              : "bg-gray-500/20 text-gray-400"
+                      }`}
+                    >
+                      {inv.status === "waiting"
+                        ? "En attente"
                         : inv.status === "accepted"
-                          ? "bg-green-500/20 text-green-400"
+                          ? "Accepté"
                           : inv.status === "refused"
-                            ? "bg-red-500/20 text-red-400"
-                            : "bg-gray-500/20 text-gray-400"
-                    }`}>
-                      {inv.status === "waiting" ? "En attente" : 
-                       inv.status === "accepted" ? "Accepté" : 
-                       inv.status === "refused" ? "Refusé" : 
-                       inv.status}
+                            ? "Refusé"
+                            : inv.status}
                     </span>
                   </div>
                 </div>
