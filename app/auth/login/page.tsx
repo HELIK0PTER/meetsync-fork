@@ -62,7 +62,7 @@ export default function SignupPage({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || `${baseUrl}/dashboard`}`, // Redirige vers le dashboard (attention avec le / dans le lien qui est transformé en %2F)
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || "/dashboard"}`,
       },
     });
 

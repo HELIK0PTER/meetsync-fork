@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Card, Listbox, ListboxItem, Avatar, Button } from "@heroui/react";
 import { User } from "@supabase/supabase-js";
+import { FaTrash } from "react-icons/fa";
 
 type Event = {
   id: string;
@@ -44,6 +45,9 @@ export default function InviteManager({
   const [addingInvite, setAddingInvite] = useState(false);
   const [error, setError] = useState("");
   const supabase = createClient();
+  const [showAll, setShowAll] = useState(false);
+  const invitesToShow = showAll ? invitations : invitations.slice(0, 5);
+  const [confirmDelete, setConfirmDelete] = useState<{id: string, email: string} | null>(null);
 
   useEffect(() => {
     const fetchInvitations = async () => {
@@ -133,8 +137,26 @@ export default function InviteManager({
     }
   };
 
+  const handleDeleteInvite = async (inviteId: string, email: string) => {
+    setConfirmDelete({ id: inviteId, email });
+  };
+
+  const confirmDeleteInvite = async () => {
+    if (!confirmDelete) return;
+    // Optimistic update
+    setInvitations(prev => prev.filter(inv => inv.id !== confirmDelete.id));
+    await supabase.from('invite').delete().eq('id', confirmDelete.id);
+    // Appel API pour envoyer le mail
+    await fetch('/api/send-invite-removed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: confirmDelete.email, eventName: event.event_name }),
+    });
+    setConfirmDelete(null);
+  };
+
   return (
-    <Card className="bg-neutral-900 p-6 rounded-lg w-full md:w-1/2">
+    <Card className="bg-neutral-900 p-6 rounded-lg w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Invitations</h2>
         {user?.id === event.owner_id && (
@@ -169,7 +191,7 @@ export default function InviteManager({
         </div>
       ) : (
         <Listbox aria-label="Invitations" className="bg-neutral-900 rounded-lg">
-          {invitations.map((inv, index) => (
+          {invitesToShow.map((inv, index) => (
             <ListboxItem 
               key={index} 
               textValue={inv.email || "Inconnu"}
@@ -208,10 +230,27 @@ export default function InviteManager({
                     </span>
                   </div>
                 </div>
+                <button
+                  className="ml-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-colors"
+                  title="Annuler l'invitation"
+                  onClick={() => handleDeleteInvite(inv.id, inv.email)}
+                >
+                  <FaTrash style={{ fontSize: '1.4rem' }} />
+                </button>
               </div>
             </ListboxItem>
           ))}
         </Listbox>
+      )}
+      {invitations.length > 5 && !showAll && (
+        <div className="flex justify-center mt-4">
+          <button
+            className="px-4 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition-all"
+            onClick={() => setShowAll(true)}
+          >
+            Voir plus
+          </button>
+        </div>
       )}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
@@ -251,6 +290,24 @@ export default function InviteManager({
                 {addingInvite ? "Ajout..." : "Ajouter"}
               </Button>
             </form>
+          </div>
+        </div>
+      )}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-neutral-900 p-8 rounded-lg w-full max-w-md shadow-lg relative">
+            <h3 className="text-xl font-bold mb-4 text-white">Êtes-vous sûr de vouloir supprimer cette invitation ?</h3>
+            <p className="mb-6 text-gray-300">L'utilisateur <span className="font-semibold text-violet-400">{confirmDelete.email}</span> sera notifié par email.</p>
+            <div className="flex gap-4 justify-end">
+              <button
+                className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold"
+                onClick={() => setConfirmDelete(null)}
+              >Annuler</button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-sm font-semibold"
+                onClick={confirmDeleteInvite}
+              >Confirmer la suppression</button>
+            </div>
           </div>
         </div>
       )}
