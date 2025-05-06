@@ -4,12 +4,35 @@ import { button as buttonStyles } from "@heroui/theme";
 import { CiCirclePlus } from "react-icons/ci";
 import { subtitle, title } from "@/components/primitives";
 import DashboardClient from "@/components/dashboard/DashboardClient";
+import "./dashboard.css";
 
-function StatCard({ label, value }: { label: string; value: number }) {
+type Trophy = {
+  name: string;
+  progress: number;
+  nextLevel: number;
+  icon: string;
+};
+
+function TrophyCard({ trophy }: { trophy: Trophy }) {
+  const progress = Math.min((trophy.progress / trophy.nextLevel) * 100, 100);
+  
   return (
-    <div className="bg-white/10 dark:bg-black/30 rounded-xl shadow-md px-8 py-6 text-center min-w-[120px]">
-      <div className="text-3xl font-bold text-violet-500">{value}</div>
-      <div className="text-md mt-2 text-gray-700 dark:text-gray-300">{label}</div>
+    <div className="flex items-center gap-4 p-4 border-b border-neutral-800">
+      <div className="text-4xl">{trophy.icon}</div>
+      <div className="flex-1">
+        <div className="flex justify-between items-center mb-2">
+          <div className="text-white font-medium">{trophy.name}</div>
+          <div className="text-sm text-gray-400">
+            {trophy.progress}/{trophy.nextLevel}
+          </div>
+        </div>
+        <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -21,6 +44,15 @@ export default async function Dashboard() {
   if (!user) {
     return <div className="text-center py-20 text-xl">Veuillez vous connecter.</div>;
   }
+
+  // Récupérer le profil utilisateur
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single();
+
+  const userName = profile?.full_name?.split('.')[1] || user.email?.split('@')[0] || 'Utilisateur';
 
   // Récupérer les événements créés ou où l'utilisateur est invité
   const { data: ownedEvents } = await supabase
@@ -45,14 +77,36 @@ export default async function Dashboard() {
 
   const hasEvents = uniqueEvents.length > 0;
 
+  // Calculer les trophées
+  const trophies: Trophy[] = [
+    {
+      name: "Explorateur",
+      progress: pastEvents.length,
+      nextLevel: 5,
+      icon: "🌍"
+    },
+    {
+      name: "Organisateur",
+      progress: ownedEvents?.length || 0,
+      nextLevel: 3,
+      icon: "🎯"
+    },
+    {
+      name: "Social",
+      progress: uniqueEvents.reduce((acc, event) => acc + (event.accepted_count || 0), 0),
+      nextLevel: 10,
+      icon: "👥"
+    }
+  ];
+
   // Je prépare le passage des événements recommandés (4 aléatoires)
   const recommendedEvents = uniqueEvents
     .sort(() => 0.5 - Math.random())
     .slice(0, 4);
 
   return (
-    <div className="flex items-center justify-center h-full min-h-screen">
-      <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 w-full">
+    <div className="min-h-screen bg-black p-6">
+      <div className="opacity-0 animate-fadeIn" style={{ animationDelay: "200ms", animationFillMode: "forwards" }}>
         {!hasEvents ? (
           <div className="inline-block max-w-xl text-center justify-center">
             <span className={title()}>Bienvenue sur&nbsp;</span>
@@ -75,17 +129,20 @@ export default async function Dashboard() {
             </div>
           </div>
         ) : (
-          <DashboardClient
-            stats={{
-              total: uniqueEvents.length,
-              upcoming: upcomingEvents.length,
-              past: pastEvents.length,
-            }}
-            upcomingEvents={upcomingEvents}
-            pastEvents={pastEvents}
-            recommendedEvents={recommendedEvents}
-            user={user}
-          />
+          <>
+            <DashboardClient
+              stats={{
+                total: uniqueEvents.length,
+                upcoming: upcomingEvents.length,
+                past: pastEvents.length,
+              }}
+              upcomingEvents={upcomingEvents}
+              pastEvents={pastEvents}
+              recommendedEvents={recommendedEvents}
+              user={user}
+              trophies={trophies}
+            />
+          </>
         )}
       </div>
     </div>

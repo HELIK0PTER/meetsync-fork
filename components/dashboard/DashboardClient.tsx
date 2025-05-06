@@ -22,12 +22,14 @@ export default function DashboardClient({
   pastEvents = [],
   recommendedEvents = [],
   user,
+  trophies = [],
 }: {
   stats?: { total: number, upcoming: number, past: number },
   upcomingEvents?: any[],
   pastEvents?: any[],
   recommendedEvents?: any[],
   user?: { email?: string; user_metadata?: { full_name?: string } },
+  trophies?: { name: string; progress: number; nextLevel: number; icon: string }[],
 }) {
   // Prénom ou fallback
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "Utilisateur";
@@ -45,6 +47,14 @@ export default function DashboardClient({
     const diff = (now.getTime() - d.getTime()) / (1000 * 3600 * 24);
     return diff < 3;
   };
+  // Trophées débloqués (progress >= nextLevel)
+  const unlockedTrophies = trophies.filter(t => t.progress >= t.nextLevel);
+  // Trophées non terminés, triés par progression décroissante
+  const inProgressTrophies = trophies
+    .filter(t => t.progress < t.nextLevel)
+    .map(t => ({ ...t, percent: t.nextLevel === 0 ? 0 : t.progress / t.nextLevel }))
+    .sort((a, b) => b.percent - a.percent)
+    .slice(0, 3);
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 w-full relative">
@@ -74,6 +84,49 @@ export default function DashboardClient({
         <div className="flex gap-4 mb-2">
           <Link href="/dashboard/my_event" className="bg-violet-600 hover:bg-violet-700 text-white rounded px-4 py-2 text-sm font-semibold transition-all">Voir tous mes événements</Link>
         </div>
+        {/* Section Mes trophées débloqués */}
+        {unlockedTrophies.length > 0 && (
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-sm text-white/80 mr-2">Mes trophées débloqués :</span>
+            {unlockedTrophies.map((t, i) => (
+              <span key={i} title={t.name} className="text-2xl">{t.icon}</span>
+            ))}
+            <Link href="/dashboard/trophee" className="ml-2 text-xs text-violet-400 underline hover:text-violet-300">Voir tous</Link>
+          </div>
+        )}
+        {/* Barre de séparation */}
+        <hr className="w-full max-w-2xl border-violet-500/40 my-6 mx-auto" />
+        {/* Trophées juste après le bouton */}
+        {trophies.length > 0 && (
+          <div className="max-w-2xl mx-auto mt-0">
+            <h2 className="text-xl font-semibold text-white mb-4">Vos Trophées</h2>
+            <div className="space-y-2">
+              {inProgressTrophies.map((trophy, index) => (
+                <Link
+                  key={index}
+                  href="/dashboard/trophee"
+                  className="flex items-center gap-4 p-4 border-b border-neutral-800 rounded-lg transition-all duration-200 hover:bg-violet-700/20 cursor-pointer group"
+                >
+                  <div className="text-4xl group-hover:scale-110 transition-transform duration-200">{trophy.icon}</div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-white font-medium">{trophy.name}</div>
+                      <div className="text-sm text-gray-400">
+                        {trophy.progress}/{trophy.nextLevel}
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min((trophy.progress / trophy.nextLevel) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {/* Séparateur */}
       <hr className="w-full max-w-4xl border-violet-300/20 my-6" />

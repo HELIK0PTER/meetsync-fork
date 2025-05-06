@@ -139,55 +139,71 @@ export default function EventContent({ event }: { event: Event }) {
                 Informations de l'événement
               </h2>
             </div>
-            <ul className="space-y-4">
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Nom :</span>
-                <span className="text-gray-200">{event.event_name}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Créateur :</span>
-                <span className="text-gray-200 break-all">{event.profiles.email}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Date :</span>
-                <span className="text-gray-200">
-                  {new Date(event.event_date).toLocaleDateString("fr-FR")}
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Ville :</span>
-                <span className="text-gray-200">{event.city}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Pays :</span>
-                <span className="text-gray-200">{event.country}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Rue :</span>
-                <span className="text-gray-200">{event.rue}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Prix :</span>
-                <span className={`px-2 py-1 rounded-full text-sm ${
-                  event.price 
-                    ? "bg-purple-500/20 text-purple-400" 
-                    : "bg-green-500/20 text-green-400"
-                }`}>
-                  {event.price ? event.price + " €" : "Gratuit"}
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-purple-400 font-medium">Rappel automatique :</span>
-                <span className={`px-2 py-1 rounded-full text-sm ${
-                  event.has_reminder 
-                    ? "bg-green-500/20 text-green-400" 
-                    : "bg-gray-500/20 text-gray-400"
-                }`}>
-                  {event.has_reminder ? "Activé" : "Désactivé"}
-                </span>
-              </li>
-              <li className="text-gray-400 text-xs mt-4">ID : {event.id}</li>
-            </ul>
+            <div className="flex flex-col gap-4">
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">🎉</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Nom</div>
+                  <div className="text-lg text-white font-medium">{event.event_name}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">👤</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Créateur</div>
+                  <div className="text-lg text-white font-medium break-all">{event.profiles.email}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">📅</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Date</div>
+                  <div className="text-lg text-white font-medium">{new Date(event.event_date).toLocaleDateString("fr-FR")}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">📍</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Ville</div>
+                  <div className="text-lg text-white font-medium">{event.city}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">🌍</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Pays</div>
+                  <div className="text-lg text-white font-medium">{event.country}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">🏠</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Rue</div>
+                  <div className="text-lg text-white font-medium">{event.rue}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">💸</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Prix</div>
+                  <div className={`text-lg font-medium ${event.price ? "text-purple-400" : "text-green-400"}`}>{event.price ? event.price + " €" : "Gratuit"}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">⏰</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">Rappel automatique</div>
+                  <div className={`text-lg font-medium ${event.has_reminder ? "text-green-400" : "text-gray-400"}`}>{event.has_reminder ? "Activé" : "Désactivé"}</div>
+                </div>
+              </div>
+              <div className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-800/80 hover:bg-violet-900/60 shadow transition-all duration-200 cursor-pointer">
+                <span className="text-purple-400 text-xl font-bold">🆔</span>
+                <div className="flex-1">
+                  <div className="text-gray-400 text-xs font-semibold uppercase">ID</div>
+                  <div className="text-lg text-white font-medium">{event.id}</div>
+                </div>
+              </div>
+            </div>
           </Card>
           <div className="w-full lg:w-1/2">
             <InviteManager user={user} event={event} />

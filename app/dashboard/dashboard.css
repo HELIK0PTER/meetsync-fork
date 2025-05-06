@@ -1,0 +1,25 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.shimmer-diagonal {
+  background: linear-gradient(120deg, transparent 40%, rgba(168,85,247,0.18) 50%, transparent 60%);
+  background-size: 200% 200%;
+  animation: shimmer-move 6s linear infinite;
+}
+@keyframes shimmer-move {
+  0% { opacity: 0; background-position: 200% 0; }
+  2% { opacity: 1; }
+  60% { opacity: 1; background-position: -200% 100%; }
+  65% { opacity: 0; background-position: -200% 100%; }
+  100% { opacity: 0; background-position: -200% 100%; }
+} 

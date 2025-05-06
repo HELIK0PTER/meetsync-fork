@@ -41,7 +41,6 @@ export default function MesEvenementsPage() {
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      console.log('Utilisateur connecté:', user);
       if (user) {
         setUserId(user.id);
       }
@@ -85,7 +84,6 @@ export default function MesEvenementsPage() {
           };
         });
 
-        console.log('Événements avec compteurs:', eventsWithCounts);
         setActiveEvents(eventsWithCounts);
       } catch (error) {
         console.error('Erreur lors du chargement des événements:', error);
@@ -112,7 +110,7 @@ export default function MesEvenementsPage() {
 
   return (
     <div className="min-h-screen bg-black p-6">
-      {/* Header avec recherche et animations */}
+      {/* Header avec recherche */}
       <div
         className="mb-8 opacity-0 animate-fadeIn"
         style={{ animationDelay: "200ms", animationFillMode: "forwards" }}
@@ -313,31 +311,8 @@ export default function MesEvenementsPage() {
           }
         }
 
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
         .animate-fadeIn {
           animation: fadeIn 0.8s ease-out;
-        }
-
-        .animate-slideUp {
-          animation: slideUp 0.8s ease-out forwards;
-        }
-
-        .animate-ripple {
-          animation: ripple 1.5s infinite;
-        }
-
-        .animate-floatingParticle {
-          animation: floatingParticle 3s infinite;
         }
       `}</style>
     </div>

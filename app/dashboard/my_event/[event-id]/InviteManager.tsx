@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
@@ -188,7 +188,7 @@ export default function InviteManager({
         </div>
       ) : (
         <Listbox aria-label="Invitations" className="bg-neutral-900 rounded-lg">
-          {invitations.map((inv, index) => (
+          {invitesToShow.map((inv, index) => (
             <ListboxItem
               key={index}
               textValue={inv.email || "Inconnu"}
@@ -255,6 +255,16 @@ export default function InviteManager({
             onClick={() => setShowAll(true)}
           >
             Voir plus
+          </button>
+        </div>
+      )}
+      {showAll && invitations.length > 5 && (
+        <div className="flex justify-center mt-4">
+          <button
+            className="px-4 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition-all"
+            onClick={() => setShowAll(false)}
+          >
+            Voir moins
           </button>
         </div>
       )}
