@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import InviteManager from "./InviteManager";
 import Image from "next/image";
 import { User } from "@supabase/supabase-js";
+import JoinOrLeaveButton from "@/components/dashboard/JoinOrLeaveButton";
 
 type Event = {
   id: string;
@@ -206,6 +207,7 @@ export default function EventContent({ event }: { event: Event }) {
             </div>
           </Card>
           <div className="w-full lg:w-1/2">
+            <JoinOrLeaveButton eventId={event.id} ownerId={event.owner_id} />
             <InviteManager user={user} event={event} />
           </div>
         </div>
