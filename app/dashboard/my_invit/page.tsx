@@ -31,7 +31,6 @@ interface Invitation {
 
 export default function MesInvitationsPage() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [activeInvitations, setActiveInvitations] = useState<Invitation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<

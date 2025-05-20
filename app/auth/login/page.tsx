@@ -8,19 +8,18 @@ import { GoogleIcon } from "@/components/icons";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
-export default function SignupPage({
-  searchParams,
-}: {
-  searchParams: { redirect: string };
-}) {
+type Props = {
+  searchParams: Promise<any>;
+};
+
+export default function LoginPage({ searchParams }: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-  // @ts-ignore
-  const { redirect } = use(searchParams);
+  const redirect = use(searchParams)?.redirect || "/dashboard";
 
   const supabase = createClient();
 
@@ -48,7 +47,7 @@ export default function SignupPage({
     if (error) {
       setErrorMessage(error.message);
     } else {
-      router.push(redirect || "/dashboard");
+      router.push(redirect);
     }
 
     setLoading(false);
@@ -62,7 +61,7 @@ export default function SignupPage({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || "/dashboard"}`,
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
       },
     });
 

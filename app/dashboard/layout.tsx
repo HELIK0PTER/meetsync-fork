@@ -3,7 +3,7 @@ import { NewLink as Link } from "@/components/ui/link";
 import { Divider } from "@heroui/divider";
 import React from "react";
 import { MdOutlineDashboard, MdEvent, MdEventRepeat } from "react-icons/md";
-import { FaRegCalendarPlus, FaTrophy } from "react-icons/fa";
+import { FaRegCalendarPlus } from "react-icons/fa";
 import { SlEnvolopeLetter } from "react-icons/sl";
 import { redirect } from "next/navigation";
 

@@ -6,7 +6,6 @@ import PlansSection from "./PlansSection";
 import HeroCTA from "./HeroCTA";
 
 import TestimonialsSlider from "@/components/TestimonialsSlider";
-import { title, subtitle } from "@/components/primitives";
 
 const features = [
   {

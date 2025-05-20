@@ -8,11 +8,11 @@ import { GoogleIcon } from "@/components/icons";
 
 import { createClient } from "@/utils/supabase/client";
 
-export default function SignupPage({
-  searchParams,
-}: {
-  searchParams: { redirect: string };
-}) {
+type Props = {
+  searchParams: Promise<any>;
+};
+
+export default function SignupPage({ searchParams }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string>("");
   const router = useRouter();
@@ -20,8 +20,7 @@ export default function SignupPage({
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-  // @ts-ignore
-  const { redirect } = use(searchParams);
+  const redirect = use(searchParams)?.redirect || "/dashboard";
 
   const validatePassword = (
     password: string,
@@ -72,7 +71,7 @@ export default function SignupPage({
         data: {
           full_name: username,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || `${baseUrl}/dashboard`}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
       },
     });
 
@@ -88,7 +87,7 @@ export default function SignupPage({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect || `${baseUrl}/dashboard`}`,
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
       },
     });
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { Tooltip } from "@heroui/tooltip";
 import { Button } from "@heroui/button";
 import {
   Dropdown,

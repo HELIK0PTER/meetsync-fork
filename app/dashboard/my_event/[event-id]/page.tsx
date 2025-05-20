@@ -2,12 +2,14 @@ import { createClient } from "@/utils/supabase/server";
 import React from "react";
 import EventContent from "./EventContent";
 
+type Props = {
+  searchParams: Promise<any>;
+};
+
 export default async function EventDetailPage({
-  params,
-}: {
-  params: { "event-id": string };
-}) {
-  const { "event-id": eventId } = await params;
+  searchParams,
+}: Props) {
+  const { "event-id": eventId } = await searchParams;
   const supabase = await createClient();
 
   // Charger l'événement côté serveur avec les invitations

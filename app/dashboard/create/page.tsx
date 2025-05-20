@@ -8,7 +8,6 @@ import {
   Input,
   Spacer,
   Checkbox,
-  user,
 } from "@heroui/react";
 import React from "react";
 import { getLocalTimeZone, now } from "@internationalized/date";
@@ -19,7 +18,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 export default function Dashboard() {
-  const [action, setAction] = React.useState<string | null>(null);
   const [isPaid, setIsPaid] = React.useState(false);
   const [price, setPrice] = React.useState("");
   const [paypalEmail, setPaypalEmail] = React.useState("");
@@ -142,7 +140,6 @@ export default function Dashboard() {
         {!isSubmitting && (
           <Form
             className="w-full flex flex-col gap-8 items-center"
-            onReset={() => setAction("reset")}
             onSubmit={handleSubmit}
           >
             <div className="space-y-6 w-full max-w-md">
