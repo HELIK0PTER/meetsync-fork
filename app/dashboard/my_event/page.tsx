@@ -26,6 +26,10 @@ type Event = {
   invites?: {
     status: 'accept' | 'waiting' | 'refused';
   }[];
+  profiles?: {
+    display_name: string;
+  };
+  is_public: boolean;
 };
 
 export default function MesEvenementsPage() {
@@ -57,9 +61,8 @@ export default function MesEvenementsPage() {
           .from('event')
           .select(`
             *,
-            invites:invite(
-              status
-            )
+            profiles:profiles!owner_id(display_name),
+            invites:invite(status)
           `)
           .eq('owner_id', userId)
           .order('event_date', { ascending: true });
@@ -196,12 +199,19 @@ export default function MesEvenementsPage() {
                 }}
               >
                 <div className="relative h-48 w-full">
-                  <Image
-                    src={event.banner_url || "/default-event.jpg"}
-                    alt={event.event_name}
-                    fill
-                    className="object-cover"
-                  />
+                  {event.banner_url && event.banner_url !== "/default-event.jpg" ? (
+                    <Image
+                      src={event.banner_url}
+                      alt={event.event_name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full w-full">
+                      <span className="absolute w-24 h-24 rounded-full bg-gray-400 opacity-70" />
+                      <span className="absolute w-16 h-16 rounded-full bg-gray-700 opacity-80" />
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
                     <h3 className="text-xl font-semibold text-white mb-1">
@@ -214,6 +224,14 @@ export default function MesEvenementsPage() {
                         year: "numeric",
                       })}
                     </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                      <span className="text-sm text-gray-300">Organisé par {event.profiles?.display_name || "Anonyme"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                      <span className={`text-sm ${event.is_public ? "text-pink-400" : "text-purple-400"}`}>{event.is_public ? "Événement public" : "Événement privé"}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="p-4">

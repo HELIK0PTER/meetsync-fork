@@ -1,10 +1,11 @@
- "use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Card, Listbox, ListboxItem, Avatar, Button } from "@heroui/react";
 import { User } from "@supabase/supabase-js";
 import { FaTrash } from "react-icons/fa";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 type Event = {
   id: string;
@@ -16,7 +17,7 @@ type Event = {
 };
 
 type Invite = {
-  invite_id: string;
+  id: string;
   email: string;
   must_pay: boolean;
   status: string;
@@ -46,13 +47,15 @@ export default function InviteManager({
   const [confirmDelete, setConfirmDelete] = useState<{id: string, email: string} | null>(null);
 
   useEffect(() => {
+    let channel: RealtimeChannel | null = null;
+
     const fetchInvitations = async () => {
-      // Récupération des invitations avec jointure automatique sur les profils
+      // Récupération des invitations depuis la table 'invite'
       const { data, error: inviteError } = await supabase
-        .from("event_guests")
+        .from("invite")
         .select(
           `
-          invite_id,
+          id,
           email,
           must_pay,
           status,
@@ -63,13 +66,42 @@ export default function InviteManager({
         `
         )
         .eq("event_id", event.id)
-        .order("invite_id", { ascending: true });
+        .order("id", { ascending: true });
 
       const error = inviteError;
       if (!error && data) setInvitations(data as unknown as Invite[]);
       setInviteLoading(false);
     };
+
     fetchInvitations();
+
+    // Abonnement aux changements en temps réel sur la table 'invite' pour cet événement
+    channel = supabase
+      .channel(`event_invites_${event.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "invite",
+          filter: `event_id=eq.${event.id}`,
+        },
+        (payload) => {
+          console.log("Changement temps réel reçu:", payload);
+          // Quand un changement se produit, refetch la liste complète
+          // Une approche plus optimiste serait de manipuler l'état local,
+          // mais un refetch est plus simple et garantit la cohérence avec la DB
+          fetchInvitations();
+        }
+      )
+      .subscribe();
+
+    // Nettoyage de l'abonnement lorsque le composant est démonté ou que les dépendances changent
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, [event.id, addingInvite, supabase]);
 
   const handleAddInvite = async (e: React.FormEvent) => {
@@ -141,7 +173,7 @@ export default function InviteManager({
   const confirmDeleteInvite = async () => {
     if (!confirmDelete) return;
     // Optimistic update
-    setInvitations(prev => prev.filter(inv => inv.invite_id !== confirmDelete.id));
+    setInvitations(prev => prev.filter(inv => inv.id !== confirmDelete.id));
     await supabase.from('invite').delete().eq('id', confirmDelete.id);
     // Appel API pour envoyer le mail
     await fetch('/api/send-invite-removed', {
@@ -190,7 +222,7 @@ export default function InviteManager({
         <Listbox aria-label="Invitations" className="bg-neutral-900 rounded-lg">
           {invitesToShow.map((inv, index) => (
             <ListboxItem
-              key={index}
+              key={inv.id}
               textValue={inv.email || "Inconnu"}
               className="p-4 hover:bg-neutral-800/50 transition-all duration-300"
             >
@@ -236,13 +268,15 @@ export default function InviteManager({
                     </span>
                   </div>
                 </div>
-                <button
-                  className="ml-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-colors"
-                  title="Annuler l'invitation"
-                  onClick={() => handleDeleteInvite(inv.invite_id, inv.email)}
-                >
-                  <FaTrash style={{ fontSize: '1.4rem' }} />
-                </button>
+                {user?.id === event.owner_id && (
+                  <button
+                    className="ml-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-colors"
+                    title="Annuler l'invitation"
+                    onClick={() => handleDeleteInvite(inv.id, inv.email)}
+                  >
+                    <FaTrash style={{ fontSize: '1.4rem' }} />
+                  </button>
+                )}
               </div>
             </ListboxItem>
           ))}

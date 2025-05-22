@@ -3,13 +3,13 @@ import React from "react";
 import EventContent from "./EventContent";
 
 type Props = {
-  searchParams: Promise<any>;
+  params: Promise<{ eventId: string }	>;
 };
 
 export default async function EventDetailPage({
-  searchParams,
+  params,
 }: Props) {
-  const { "event-id": eventId } = await searchParams;
+  const { eventId } = await params;
   const supabase = await createClient();
 
   // Charger l'événement côté serveur avec les invitations

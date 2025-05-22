@@ -25,6 +25,8 @@ type Event = {
   owner_name: string | null;
   banner_url: string | null;
   animationDelay?: number;
+  profiles?: { display_name: string };
+  owner_id: string;
 };
 
 export default function RechercheEvenementsPage() {
@@ -41,19 +43,24 @@ export default function RechercheEvenementsPage() {
 
   const eventsPerPage = 9;
   const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
       const { data, error } = await supabase
-        .from("all_events")
-        .select("*")
-        .order("date", { ascending: false });
+        .from("event")
+        .select(`
+          *,
+          profiles:profiles!owner_id(display_name)
+        `)
+        .eq('is_public', true)
+        .order("event_date", { ascending: false });
 
       if (error) {
         console.error("Erreur lors de la récupération des événements:", error);
       } else {
         const formattedEvents = data.map((event) => {
-          const eventDate = new Date(event.date);
+          const eventDate = new Date(event.event_date);
           return {
             ...event,
             date: eventDate.toISOString(),
@@ -151,6 +158,14 @@ export default function RechercheEvenementsPage() {
     setActiveEvents(resultsWithDelay);
     setCurrentPage(1);
   }, [searchTerm, priceFilter, countryFilter, dateFilter, events]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserId(user.id);
+    };
+    fetchUser();
+  }, [supabase]);
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
@@ -383,7 +398,14 @@ export default function RechercheEvenementsPage() {
                     }}
                   >
                     {event.name}
+                    {userId && event.owner_id === userId && (
+                      <span className="ml-2 px-2 py-0.5 rounded-full bg-pink-500 text-white text-xs font-semibold align-middle">Votre événement</span>
+                    )}
                   </h2>
+                  <div className="flex items-center gap-2 mt-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    <span className="text-sm text-gray-300">Organisé par {event.profiles?.display_name || "Anonyme"}</span>
+                  </div>
                   <p 
                     className="text-sm text-gray-400 mb-1 transition-all duration-300 hover:text-purple-400 hover:ring-2 hover:ring-purple-500 hover:px-2 hover:py-1 hover:rounded-md"
                     style={{
