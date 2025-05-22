@@ -6,7 +6,7 @@ import PlansSection from "./PlansSection";
 import HeroCTA from "./HeroCTA";
 
 import TestimonialsSlider from "@/components/TestimonialsSlider";
-
+import Title from "./_components/Title";
 const features = [
   {
     title: "Création intuitive",
@@ -74,13 +74,10 @@ export default function Home() {
       <div className="py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div id="product" className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold mb-6">
-              Tout ce dont vous avez besoin
-            </h2>
-            <p className="text-lg text-gray-200">
-              Une suite complète d&apos;outils pour gérer vos événements
-              efficacement
-            </p>
+            <Title
+              titre = {`Tout ce dont vous avez besoin`}
+              description = {`Une suite complète d&apos;outils pour gérer vos événements efficacement`}
+            />
           </div>
           <div className="mx-auto mt-16 max-w-7xl">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:gap-8">
@@ -100,7 +97,9 @@ export default function Home() {
                     <h3 className="text-xl font-semibold mb-4 text-purple-600">
                       {feature.title}
                     </h3>
-                    <p className="text-base text-gray-200">{feature.description}</p>
+                    <p className="text-base text-gray-200">
+                      {feature.description}
+                    </p>
                   </CardBody>
                 </Card>
               ))}

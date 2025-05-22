@@ -6,7 +6,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Footer } from "@/components/footer";
 import { Providers } from "./providers";
-import DynamicBackground from "./components/DynamicBackground";
+import DynamicBackground from "./_components/DynamicBackground";
 
 export const metadata: Metadata = {
   title: {

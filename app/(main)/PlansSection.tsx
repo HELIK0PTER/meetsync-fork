@@ -2,9 +2,8 @@ import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
 
-import { title } from "@/components/primitives";
 import { createClient } from "@/utils/supabase/server";
-
+import Title from "./_components/Title";
 interface Feature {
   text: string;
   included: boolean;
@@ -66,12 +65,10 @@ const PlansSection = async () => {
     <>
       <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="text-center space-y-4 max-w-3xl mx-auto px-4">
-          <h2 className={title({ color: "violet", size: "md" })}>
-            Quand vous devrez aller plus loin
-          </h2>
-          <p className="text-lg">
-            Choisissez le plan qui correspond le mieux à vos besoins
-          </p>
+          <Title
+            titre = {`Quand vous devrez aller plus loin`}
+            description = {`Choisissez le plan qui correspond le mieux à vos besoins`}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-12 px-4 w-full max-w-7xl">

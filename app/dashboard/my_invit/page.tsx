@@ -5,7 +5,6 @@ import { Card } from "@heroui/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import DynamicBackground from "@/app/components/DynamicBackground";
 
 // Définition du type pour les invitations
 interface Invitation {
@@ -24,8 +23,9 @@ interface Invitation {
   price: number;
   city: string;
   banner_url: string;
+  max_attendees: number;
 
-  // Informations additionnelles
+  // Infos supplémentaires
   attendee_count: number;
 }
 
@@ -141,19 +141,17 @@ export default function MesInvitationsPage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return "Date non spécifiée";
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Intl.DateTimeFormat("fr-FR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
   return (
     <div className="min-h-screen bg-black p-6 relative overflow-hidden">
-      <DynamicBackground />
-      
       <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
         <h1 className="text-3xl font-bold text-white text-center mb-6">
           Mes Invitations
@@ -238,7 +236,7 @@ export default function MesInvitationsPage() {
           </div>
         ) : filteredInvitations.length > 0 ? (
           filteredInvitations.map((invitation) => (
-            <Link 
+            <Link
               href={`/dashboard/my_event/${invitation.event_id}`}
               key={invitation.invite_id}
               className="block transition-all duration-300 hover:scale-105 hover:ring-2 hover:ring-purple-500 rounded-lg"
@@ -250,9 +248,9 @@ export default function MesInvitationsPage() {
               >
                 <div className="relative h-48 bg-neutral-800">
                   {invitation.banner_url ? (
-                    <img 
-                      src={invitation.banner_url} 
-                      alt={invitation.event_name || "Événement"} 
+                    <img
+                      src={invitation.banner_url}
+                      alt={invitation.event_name || "Événement"}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -265,26 +263,35 @@ export default function MesInvitationsPage() {
                 </div>
 
                 <div className="p-5 flex-grow">
-                  <h2 
+                  <h2
                     className="text-xl font-medium text-white mb-2 transition-all duration-300"
                     style={{
-                      transform: hoveredId === invitation.invite_id ? "translateX(8px)" : "translateX(0)"
+                      transform:
+                        hoveredId === invitation.invite_id
+                          ? "translateX(8px)"
+                          : "translateX(0)",
                     }}
                   >
                     {invitation.event_name || "Sans titre"}
                   </h2>
-                  <p 
+                  <p
                     className="text-sm text-gray-400 mb-1 transition-all duration-300"
                     style={{
-                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                      transform:
+                        hoveredId === invitation.invite_id
+                          ? "translateX(4px)"
+                          : "translateX(0)",
                     }}
                   >
                     {formatDate(invitation.event_date)}
                   </p>
-                  <p 
+                  <p
                     className="text-sm text-gray-400 mb-1 transition-all duration-300"
                     style={{
-                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                      transform:
+                        hoveredId === invitation.invite_id
+                          ? "translateX(4px)"
+                          : "translateX(0)",
                     }}
                   >
                     <div className="flex items-center gap-2">
@@ -308,13 +315,18 @@ export default function MesInvitationsPage() {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      <span className="font-medium">{invitation.city || "Lieu non spécifié"}</span>
+                      <span className="font-medium">
+                        {invitation.city || "Lieu non spécifié"}
+                      </span>
                     </div>
                   </p>
-                  <p 
+                  <p
                     className="text-sm text-gray-400 mb-2 transition-all duration-300"
                     style={{
-                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                      transform:
+                        hoveredId === invitation.invite_id
+                          ? "translateX(4px)"
+                          : "translateX(0)",
                     }}
                   >
                     <div className="flex items-center gap-2">
@@ -339,10 +351,13 @@ export default function MesInvitationsPage() {
                       )}
                     </div>
                   </p>
-                  <p 
+                  <p
                     className="text-sm text-gray-400 mb-2 transition-all duration-300"
                     style={{
-                      transform: hoveredId === invitation.invite_id ? "translateX(4px)" : "translateX(0)"
+                      transform:
+                        hoveredId === invitation.invite_id
+                          ? "translateX(4px)"
+                          : "translateX(0)",
                     }}
                   >
                     <div className="flex items-center gap-2">
@@ -360,10 +375,12 @@ export default function MesInvitationsPage() {
                           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                         />
                       </svg>
-                      <span>{invitation.attendee_count} participant{invitation.attendee_count !== 1 ? "s" : ""}</span>
+                      <span>
+                        {invitation.attendee_count} / {invitation.max_attendees} <span className="text-gray-400 text-sm">participants</span>
+                      </span>
                     </div>
                   </p>
-                  <div 
+                  <div
                     className={`
                       flex items-center gap-2 px-3 py-1.5 rounded-lg
                       ${getStatusColor(invitation.status)}
