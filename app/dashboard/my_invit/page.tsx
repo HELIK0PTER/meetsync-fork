@@ -151,7 +151,7 @@ export default function MesInvitationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-6 relative overflow-hidden">
+    <div className="min-h-screen p-6 relative overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
         <h1 className="text-3xl font-bold text-white text-center mb-6">
           Mes Invitations
@@ -242,7 +242,7 @@ export default function MesInvitationsPage() {
               className="block transition-all duration-300 hover:scale-105 hover:ring-2 hover:ring-purple-500 rounded-lg"
             >
               <Card
-                className="overflow-hidden rounded-lg flex flex-col bg-neutral-900 hover:bg-neutral-800/50 transition-all duration-300 group h-full"
+                className="overflow-hidden rounded-lg flex flex-col transition-all duration-300 group h-full"
                 onMouseEnter={() => setHoveredId(invitation.invite_id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
@@ -376,7 +376,9 @@ export default function MesInvitationsPage() {
                         />
                       </svg>
                       <span>
-                        {invitation.attendee_count} / {invitation.max_attendees} <span className="text-gray-400 text-sm">participants</span>
+                        {typeof invitation.attendee_count === 'number' && invitation.attendee_count === 0
+                          ? '0'
+                          : invitation.attendee_count} / {invitation.max_attendees} <span className="text-gray-400 text-sm">participants</span>
                       </span>
                     </div>
                   </p>
@@ -394,6 +396,32 @@ export default function MesInvitationsPage() {
                       {invitation.status === "refused" && "Refusée"}
                     </span>
                   </div>
+                  {/* Boutons Accepter/Refuser si en attente */}
+                  {invitation.status === "waiting" && (
+                    <div className="flex gap-3 mt-4">
+                      <button
+                        className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-all"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          await supabase.from('invite').update({ status: 'accept' }).eq('invite_id', invitation.invite_id);
+                          // Optionnel: refresh la liste
+                          setActiveInvitations((prev) => prev.map(inv => inv.invite_id === invitation.invite_id ? { ...inv, status: 'accept' } : inv));
+                        }}
+                      >
+                        Accepter
+                      </button>
+                      <button
+                        className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-all"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          await supabase.from('invite').update({ status: 'refused' }).eq('invite_id', invitation.invite_id);
+                          setActiveInvitations((prev) => prev.map(inv => inv.invite_id === invitation.invite_id ? { ...inv, status: 'refused' } : inv));
+                        }}
+                      >
+                        Refuser
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Card>
             </Link>

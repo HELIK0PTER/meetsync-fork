@@ -6,14 +6,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import EventCalendar from "./EventCalendar";
 
 function countInvitations(events: any[]) {
-  let total = 0, accepted = 0;
+  let total = 0, accepted = 0, refused = 0, waiting = 0;
   for (const e of events) {
     if (Array.isArray(e.invites)) {
       total += e.invites.length;
       accepted += e.invites.filter((i: any) => i.status === "accept").length;
+      refused += e.invites.filter((i: any) => i.status === "refused").length;
+      waiting += e.invites.filter((i: any) => i.status === "waiting").length;
     }
   }
-  return { total, accepted };
+  return { total, accepted, refused, waiting };
 }
 
 export default function DashboardClient({
@@ -39,7 +41,7 @@ export default function DashboardClient({
   let filteredUpcoming = upcomingEvents.filter(e => e.event_name.toLowerCase().includes(search.toLowerCase()));
   filteredUpcoming = filteredUpcoming.sort((a, b) => sortAsc ? new Date(a.event_date).getTime() - new Date(b.event_date).getTime() : new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
   // Invitations
-  const { total: totalInv, accepted: acceptedInv } = countInvitations([...upcomingEvents, ...pastEvents]);
+  const { total: totalInv, accepted: acceptedInv, refused: refusedInv, waiting: waitingInv } = countInvitations([...upcomingEvents, ...pastEvents]);
   // Badge 'Nouveau' (moins de 3 jours)
   const isNew = (date: string) => {
     const d = new Date(date);
@@ -65,7 +67,7 @@ export default function DashboardClient({
         <div className="flex gap-8 mb-4">
           <div className="bg-white/10 dark:bg-black/30 rounded-xl shadow-md px-8 py-6 text-center min-w-[120px]">
             <div className="text-3xl font-bold text-violet-500">{stats.total}</div>
-            <div className="text-md mt-2 text-gray-700 dark:text-gray-300">Événements</div>
+            <div className="text-md mt-2 text-gray-700 dark:text-gray-300">Événements total</div>
           </div>
           <div className="bg-white/10 dark:bg-black/30 rounded-xl shadow-md px-8 py-6 text-center min-w-[120px]">
             <div className="text-3xl font-bold text-violet-500">{stats.upcoming}</div>
@@ -76,9 +78,10 @@ export default function DashboardClient({
             <div className="text-md mt-2 text-gray-700 dark:text-gray-300">Passés</div>
           </div>
           <div className="bg-white/10 dark:bg-black/30 rounded-xl shadow-md px-8 py-6 text-center min-w-[120px]">
-            <div className="text-3xl font-bold text-violet-500">{totalInv}</div>
-            <div className="text-md mt-2 text-gray-700 dark:text-gray-300">Invitations</div>
+            <div className="text-3xl font-bold text-violet-500">{waitingInv}</div>
+            <div className="text-md mt-2 text-gray-700 dark:text-gray-300">Invitations en attente</div>
             <div className="text-sm text-green-400">{acceptedInv} acceptées</div>
+            <div className="text-sm text-red-400">{refusedInv} refusées</div>
           </div>
         </div>
         <div className="flex gap-4 mb-2">

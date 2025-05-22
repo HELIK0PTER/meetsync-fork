@@ -14,6 +14,7 @@ import { getLocalTimeZone, now } from "@internationalized/date";
 import { Divider } from "@heroui/divider";
 import { I18nProvider } from "@react-aria/i18n";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { createClient } from "@/utils/supabase/client";
 
@@ -30,6 +31,10 @@ export default function Dashboard() {
   const supabase = createClient();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+  const inputFileRef = React.useRef<HTMLInputElement | null>(null);
 
   React.useEffect(() => {
     const fetchUser = async () => {
@@ -64,6 +69,18 @@ export default function Dashboard() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -73,6 +90,22 @@ export default function Dashboard() {
     console.log(isPublic);
     console.log(hasReminder);
 
+    let imageUrl = null;
+    if (imageFile) {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${userId}-${Date.now()}.${fileExt}`;
+      const filePath = `event-banners/${fileName}`;
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('banners')
+        .upload(filePath, imageFile, { upsert: true });
+      if (uploadError) {
+        setIsSubmitting(false);
+        alert("Erreur lors de l'upload de l'image");
+        return;
+      }
+      imageUrl = supabase.storage.from('banners').getPublicUrl(filePath).data.publicUrl;
+    }
     const { data: inserted, error } = await supabase
       .from("event")
       .insert({
@@ -86,6 +119,7 @@ export default function Dashboard() {
         owner_id: userId,
         has_reminder: hasReminder,
         is_public: isPublic,
+        banner_url: imageUrl,
       })
       .select();
 
@@ -139,10 +173,37 @@ export default function Dashboard() {
         )}
         {!isSubmitting && (
           <Form
-            className="w-full flex flex-col gap-8 items-center"
+            className="w-full flex flex-col gap-10 items-center"
             onSubmit={handleSubmit}
           >
-            <div className="space-y-6 w-full max-w-md">
+            <div className="space-y-8 w-full max-w-md">
+              {/* Champ image */}
+              <div className="flex flex-col gap-2 items-center w-full">
+                <label className="text-gray-300 text-md font-medium">Image de l'événement</label>
+                <div className="w-full flex flex-col items-center justify-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    ref={inputFileRef}
+                    className="block w-full text-sm text-gray-400 file:mr-4 file:px-6 file:py-2 file:rounded-full file:border-0 file:text-white file:font-semibold file:bg-[#7c3aed] hover:file:bg-violet-700 file:shadow-none"
+                  />
+                  {imagePreview && (
+                    <div className="mt-4 flex flex-col items-end gap-2 w-full">
+                      <Image src={imagePreview} alt="Preview" width={320} height={180} className="rounded-xl border-2 border-violet-500/40 shadow-lg self-center" />
+                      <button
+                        type="button"
+                        onClick={() => { setImageFile(null); setImagePreview(null); if(inputFileRef.current) inputFileRef.current.value = ""; }}
+                        className="px-4 py-1 rounded-full bg-neutral-900 hover:bg-violet-700 text-white text-xs font-semibold shadow transition-all mt-2"
+                      >
+                        Retirer l'image
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <Spacer y={8} />
+              {/* Champs texte */}
               <Input
                 isRequired
                 errorMessage="Merci d'entrer un nom d'événement valide"
@@ -156,7 +217,6 @@ export default function Dashboard() {
                   label: "text-gray-300"
                 }}
               />
-
               <I18nProvider locale="fr">
                 <DatePicker
                   hideTimeZone
@@ -173,7 +233,6 @@ export default function Dashboard() {
                   }}
                 />
               </I18nProvider>
-
               <Input
                 isRequired
                 errorMessage="Merci d'entrer un pays valide"
@@ -187,7 +246,6 @@ export default function Dashboard() {
                   label: "text-gray-300"
                 }}
               />
-
               <Input
                 isRequired
                 errorMessage="Merci d'entrer une ville valide"
@@ -201,7 +259,6 @@ export default function Dashboard() {
                   label: "text-gray-300"
                 }}
               />
-
               <Input
                 isRequired
                 errorMessage="Merci d'entrer une adresse valide"
@@ -216,11 +273,9 @@ export default function Dashboard() {
                 }}
               />
             </div>
-
-            <Divider className="my-2 w-full max-w-md" />
-            
-            <div className="space-y-6 w-full max-w-md">
-              <div className="flex flex-col gap-6">
+            <Divider className="my-4 w-full max-w-md" />
+            <div className="space-y-8 w-full max-w-md">
+              <div className="flex flex-col gap-8">
                 <Checkbox 
                   isSelected={isPublic} 
                   onChange={() => setIsPublic(!isPublic)}
@@ -231,8 +286,7 @@ export default function Dashboard() {
                 >
                   Événement public
                 </Checkbox>
-
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-8">
                   <Checkbox 
                     isSelected={isPaid} 
                     onChange={handleCheckboxChange}
@@ -243,47 +297,41 @@ export default function Dashboard() {
                   >
                     Événement payant
                   </Checkbox>
-
                   {isPaid && (
                     <div className="flex flex-col gap-6 ml-6 border-l-2 border-purple-500/20 pl-4">
-                      <div>
-                        <Input
-                          isRequired
-                          errorMessage="Merci d'entrer un prix valide"
-                          label="Prix"
-                          labelPlacement="outside"
-                          name="price"
-                          placeholder="Prix en euros"
-                          type="number"
-                          value={price}
-                          onChange={(e) => setPrice(e.target.value)}
-                          classNames={{
-                            input: "bg-black/40 border-neutral-800",
-                            label: "text-gray-300"
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <Input
-                          isRequired
-                          errorMessage="Merci d'entrer un email PayPal valide"
-                          label="Email PayPal"
-                          labelPlacement="outside"
-                          name="paypal_email"
-                          placeholder="Email PayPal"
-                          type="email"
-                          value={paypalEmail}
-                          onChange={(e) => setPaypalEmail(e.target.value)}
-                          classNames={{
-                            input: "bg-black/40 border-neutral-800",
-                            label: "text-gray-300"
-                          }}
-                        />
-                      </div>
+                      <Input
+                        isRequired
+                        errorMessage="Merci d'entrer un prix valide"
+                        label="Prix"
+                        labelPlacement="outside"
+                        name="price"
+                        placeholder="Prix en euros"
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        classNames={{
+                          input: "bg-black/40 border-neutral-800",
+                          label: "text-gray-300"
+                        }}
+                      />
+                      <Input
+                        isRequired
+                        errorMessage="Merci d'entrer un email PayPal valide"
+                        label="Email PayPal"
+                        labelPlacement="outside"
+                        name="paypal_email"
+                        placeholder="Email PayPal"
+                        type="email"
+                        value={paypalEmail}
+                        onChange={(e) => setPaypalEmail(e.target.value)}
+                        classNames={{
+                          input: "bg-black/40 border-neutral-800",
+                          label: "text-gray-300"
+                        }}
+                      />
                     </div>
                   )}
                 </div>
-
                 <Checkbox 
                   onClick={() => setHasReminder(!hasReminder)}
                   classNames={{
@@ -294,25 +342,24 @@ export default function Dashboard() {
                   Rappel automatique
                 </Checkbox>
               </div>
-
-              <div className="space-y-2 text-center">
+              {/* Email personnalisé aligné */}
+              <div className="flex flex-col gap-2 w-full">
                 <Checkbox
                   isDisabled={isEmailDisabled}
                   onClick={() => setIsEmailDisabled(!isEmailDisabled)}
                   classNames={{
-                    label: "text-gray-300"
+                    label: "text-gray-300 text-md",
+                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
                   }}
                 >
                   Email personnalisé
                 </Checkbox>
-                <p className="text-gray-500 text-xs">
-                  Email personnalisé est seulement pour les offres{" "}
-                  <span className="text-purple-400">Pro</span>
+                <p className="text-gray-500 text-xs ml-2">
+                  Email personnalisé est seulement pour les offres <span className="text-purple-400">Pro</span>
                 </p>
               </div>
             </div>
-
-            <div className="flex gap-4 justify-center w-full max-w-md">
+            <div className="flex gap-6 justify-center w-full max-w-md mt-4">
               <Button 
                 type="reset" 
                 variant="flat"
@@ -321,9 +368,9 @@ export default function Dashboard() {
                 Réinitialiser
               </Button>
               <Button 
-                color="secondary" 
-                type="submit"
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white"
+                type="submit" 
+                className="bg-[#7c3aed] hover:bg-violet-700 text-white font-semibold px-8 py-3 rounded-lg"
+                isLoading={isSubmitting}
               >
                 Créer l'événement
               </Button>
