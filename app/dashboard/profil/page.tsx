@@ -10,6 +10,7 @@ import {
 } from "@heroui/modal";
 import { useDisclosure } from "@heroui/use-disclosure";
 import { Spacer } from "@heroui/spacer";
+import Link from "next/link";
 
 import { Form, Input } from "@heroui/react";
 import { Divider } from "@heroui/divider";
@@ -21,6 +22,7 @@ import { useRouter } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { SUBSCRIPTION_PLANS } from '@/utils/subscription-plans';
 
 export default function Dashboard() {
   const supabase = createClient();
@@ -34,6 +36,8 @@ export default function Dashboard() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const router = useRouter();
+
+  const [portalOrPlanLoading, setPortalOrPlanLoading] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -203,6 +207,33 @@ export default function Dashboard() {
     }
   };
 
+  const handlePortalOrPlan = async () => {
+    setPortalOrPlanLoading(true);
+    try {
+      // Si l'utilisateur a un abonnement actif (plus/pro), on ouvre le portail Stripe
+      if (profile.subscription_plan && profile.subscription_plan !== 'basic') {
+        const res = await fetch('/api/create-customer-portal-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Erreur lors de la redirection vers le portail Stripe');
+        }
+      } else {
+        // Sinon, on redirige vers la page de choix de plan
+        window.location.href = '/dashboard/plan';
+      }
+    } catch (e) {
+      alert('Erreur lors de la redirection');
+    } finally {
+      setPortalOrPlanLoading(false);
+    }
+  };
+
   const renderAccountTypeChip = (accountType: string) => {
     switch (accountType) {
       case "basic":
@@ -274,9 +305,9 @@ export default function Dashboard() {
           <Divider />
           <CardBody>
             <p>Type de compte :</p>
-            {renderAccountTypeChip(profile.account_type)}
+            {renderAccountTypeChip(profile.subscription_plan)}
             <Spacer y={2} />
-            <p>Renouvellement :</p>
+            <p>Fin d'abonnement :</p>
             {renderRenewType(profile.renew_type)}
             <Spacer y={2} />
             <p>Date de Création :</p>
@@ -301,6 +332,12 @@ export default function Dashboard() {
             <Spacer y={2} />
             <Button color="secondary" isDisabled>
               Activer la mfa ( soon )
+            </Button>
+            <Spacer y={2} />
+            <Button color="secondary" onClick={handlePortalOrPlan} isLoading={portalOrPlanLoading}>
+              {profile.subscription_plan && profile.subscription_plan !== 'basic'
+                ? 'Gérer mon abonnement Stripe'
+                : 'Souscrire à un abonnement'}
             </Button>
             <Spacer y={2} />
             <Button color="danger" onClick={onOpen} isLoading={deleting}>

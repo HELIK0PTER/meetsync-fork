@@ -25,6 +25,7 @@
     "@heroui/switch": "^2.2.14",
     "@heroui/system": "^2.4.12",
     "@heroui/theme": "^2.4.12",
+    "@stripe/stripe-js": "^7.3.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "@types/nodemailer": "^6.4.17",
@@ -40,7 +41,8 @@
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
-    "resend": "^4.5.0"
+    "resend": "^4.5.0",
+    "stripe": "^18.1.1"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "15.0.4",
