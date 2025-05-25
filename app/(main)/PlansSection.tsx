@@ -4,6 +4,8 @@ import { Link } from "@heroui/link";
 
 import { createClient } from "@/utils/supabase/server";
 import Title from "./_components/Title";
+import { SUBSCRIPTION_PLANS } from '@/utils/subscription-plans';
+
 interface Feature {
   text: string;
   included: boolean;
@@ -56,10 +58,59 @@ const PLANS: Plan[] = [
 
 const PlansSection = async () => {
   const supabase = await createClient();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Récupérer le profil pour savoir si l'utilisateur a déjà un abonnement
+  let profile = null;
+  if (user) {
+    const { data } = await supabase.from("profiles").select("subscription_plan, subscription_status").eq("id", user.id).single();
+    profile = data;
+  }
+
+  // Fonction pour gérer le clic sur le bouton
+  const getButtonProps = (planKey: string) => {
+    if (!user) {
+      return {
+        href: "/auth/login",
+        children: "Se connecter pour souscrire"
+      };
+    }
+
+    // Vérifier si l'utilisateur a déjà un abonnement actif
+    const hasActiveSubscription = profile?.subscription_plan && 
+                                profile.subscription_plan !== 'basic' && 
+                                profile.subscription_status === 'active';
+
+    if (hasActiveSubscription) {
+      // Si déjà abonné, redirige vers le portail client Stripe
+      return {
+        onClick: async () => {
+          const res = await fetch('/api/create-customer-portal-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id }),
+          });
+          const data = await res.json();
+          if (data.url) {
+            window.location.href = data.url;
+          } else {
+            alert('Erreur lors de la redirection vers le portail Stripe');
+          }
+        },
+        children: 'Gérer mon abonnement Stripe',
+        disabled: false
+      };
+    } else {
+      // Sinon, redirige vers la page d'abonnement (checkout)
+      return {
+        href: `/dashboard/plan`,
+        children: `Souscrire à ${planKey.charAt(0).toUpperCase() + planKey.slice(1).toLowerCase()}`,
+        disabled: false
+      };
+    }
+  };
 
   return (
     <>
@@ -72,7 +123,7 @@ const PlansSection = async () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-12 px-4 w-full max-w-7xl">
-          {PLANS.map((plan, index) => (
+          {Object.entries(SUBSCRIPTION_PLANS).map(([key, plan], index) => (
             <Card
               key={index}
               className={`relative transform transition-all duration-300 hover:scale-105 hover:shadow-xl py-6 max-w-md mx-auto w-full
@@ -81,12 +132,7 @@ const PlansSection = async () => {
               <CardHeader className="pb-0 pt-2 px-6 flex-col items-center text-center space-y-4">
                 <h3 className="text-2xl font-bold">{plan.name}</h3>
                 <div className="flex items-baseline justify-center">
-                  <span className="text-5xl font-extrabold">{plan.price}</span>
-                  {plan.period && (
-                    <span className="text-xl text-gray-600 ml-1">
-                      {plan.period}
-                    </span>
-                  )}
+                  <span className="text-5xl font-extrabold">{plan.price === 0 ? 'GRATUIT' : `${plan.price}€`}</span>
                 </div>
               </CardHeader>
               <CardBody className="px-6 py-8">
@@ -96,70 +142,68 @@ const PlansSection = async () => {
                       key={featureIndex}
                       className="flex items-start space-x-3 text-base"
                     >
-                      <span
-                        className={`flex-shrink-0 h-6 w-6 rounded-full flex items-center justify-center
-                          ${
-                            feature.included
-                              ? "bg-purple-100 text-purple-600"
-                              : "bg-gray-100 text-gray-400"
-                          }`}
-                      >
-                        {feature.included ? (
-                          <svg
-                            className="h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
+                      <span className="flex-shrink-0 h-6 w-6 rounded-full flex items-center justify-center bg-purple-100 text-purple-600">
+                        <svg
+                          className="h-5 w-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </span>
-                      <span
-                        className={`text-base ${feature.included ? "" : "text-gray-500"}`}
-                      >
-                        {feature.text}
-                      </span>
+                      <span className="text-base">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </CardBody>
               <CardFooter className="px-6">
-                <Button
-                  className={`w-full font-semibold shadow-sm transition-all duration-200
-                    ${
-                      plan.name === "Plus"
-                        ? "bg-purple-600 hover:bg-purple-700"
-                        : "bg-white border-2 border-purple-600 hover:bg-purple-50"
-                    }`}
-                >
-                  <Link
-                    className={`w-full py-4 text-center text-base flex items-center justify-center
-                      ${
-                        plan.name === "Plus" ? "text-white" : "text-purple-600"
-                      }`}
-                    href={user ? "/dashboard/profile/plans" : "/auth/login"}
-                  >
-                    {plan.hasTrial
-                      ? `Commencer l'essai gratuit de 30 jours`
-                      : `Choisir ${plan.name}`}
-                  </Link>
-                </Button>
+                {(() => {
+                  const btnProps = getButtonProps(key.toLowerCase());
+                  const hasActiveSubscription = profile?.subscription_plan && 
+                                             profile.subscription_plan !== 'basic';
+
+                  if (btnProps.href) {
+                    // Cas lien : bouton avec Link à l'intérieur
+                    return (
+                      <Button
+                        className={`w-full font-semibold shadow-sm transition-all duration-200
+                          ${plan.name === "Plus"
+                            ? "bg-purple-600 hover:bg-purple-700 text-white"
+                            : "bg-white border-2 border-purple-600 hover:bg-purple-50 text-purple-600"}
+                          ${hasActiveSubscription ? 'opacity-50 cursor-not-allowed' : ''}
+                        `}
+                        disabled={hasActiveSubscription}
+                      >
+                        <Link 
+                          href={btnProps.href} 
+                          className={`w-full py-4 text-center text-purple flex items-center justify-center
+                            ${hasActiveSubscription ? 'pointer-events-none' : ''}`}
+                        >
+                          {hasActiveSubscription ? 'Abonnement actif' : btnProps.children}
+                        </Link>
+                      </Button>
+                    );
+                  } else {
+                    // Cas bouton action
+                    return (
+                      <Button
+                        className={`w-full font-semibold shadow-sm transition-all duration-200
+                          ${plan.name === "Plus"
+                            ? "bg-purple-600 hover:bg-purple-700 text-white"
+                            : "bg-white border-2 border-purple-600 hover:bg-purple-50 text-purple-600"}
+                        `}
+                        onClick={btnProps.onClick}
+                        disabled={btnProps.disabled}
+                      >
+                        {btnProps.children}
+                      </Button>
+                    );
+                  }
+                })()}
               </CardFooter>
             </Card>
           ))}
