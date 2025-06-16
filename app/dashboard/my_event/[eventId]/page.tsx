@@ -27,8 +27,6 @@ export default async function EventDetailPage({
     .eq("id", eventId)
     .single();
 
-  console.log(error);
-
   if (error || !event) {
     return <div className="text-white p-10">Aucun événement trouvé.</div>;
   }

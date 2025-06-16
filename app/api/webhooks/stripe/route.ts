@@ -7,7 +7,6 @@ import { SUBSCRIPTION_PLANS } from '@/utils/subscription-plans';
 export async function POST(req: Request) {
     const body = await req.text();
     const signature = (await headers()).get('stripe-signature')!;
-    console.log('Stripe webhook reçu, signature:', signature);
 
     try {
         const event = stripe.webhooks.constructEvent(
@@ -15,7 +14,6 @@ export async function POST(req: Request) {
             signature,
             process.env.STRIPE_WEBHOOK_SECRET!
         );
-        console.log('Stripe event:', event.type);
 
         const supabase = await createClient(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -43,7 +41,7 @@ export async function POST(req: Request) {
                     }
                 }
 
-                const { error } = await supabase
+                await supabase
                     .from('profiles')
                     .update({
                         subscription_status: status,
@@ -51,12 +49,6 @@ export async function POST(req: Request) {
                         subscription_plan: planId,
                     })
                     .eq('stripe_customer_id', customerId);
-
-                if (error) {
-                    console.error('Erreur update Supabase (checkout.session.completed):', error);
-                } else {
-                    console.log('Abonnement initialisé pour', customerId);
-                }
                 break;
             }
             case 'customer.subscription.updated': {
@@ -66,8 +58,6 @@ export async function POST(req: Request) {
                 let planId = null;
                 if (typeof periodEndRaw === 'number' && !isNaN(periodEndRaw)) {
                     periodEnd = new Date(periodEndRaw * 1000).toISOString();
-                } else {
-                    console.warn('current_period_end non défini ou invalide pour la souscription', subscription);
                 }
                 if ((subscription as any).items && (subscription as any).items.data.length > 0) {
                     const priceId = (subscription as any).items.data[0].price.id;
@@ -75,7 +65,7 @@ export async function POST(req: Request) {
                         ([, plan]) => plan.stripePriceId === priceId
                     )?.[1].id || null;
                 }
-                const { error } = await supabase
+                await supabase
                     .from('profiles')
                     .update({
                         subscription_status: (subscription as any).status,
@@ -83,16 +73,11 @@ export async function POST(req: Request) {
                         subscription_plan: planId,
                     })
                     .eq('stripe_customer_id', (subscription as any).customer);
-                if (error) {
-                    console.error('Erreur update Supabase:', error);
-                } else {
-                    console.log('Abonnement mis à jour pour', (subscription as any).customer);
-                }
                 break;
             }
             case 'customer.subscription.deleted': {
                 const subscription = event.data.object;
-                const { error } = await supabase
+                await supabase
                     .from('profiles')
                     .update({
                         subscription_plan: 'basic',
@@ -100,20 +85,12 @@ export async function POST(req: Request) {
                         subscription_end_date: null
                     })
                     .eq('stripe_customer_id', (subscription as any).customer);
-                if (error) {
-                    console.error('Erreur update Supabase:', error);
-                } else {
-                    console.log('Abonnement repassé en basic pour', (subscription as any).customer);
-                }
                 break;
             }
-            default:
-                console.log('Événement non géré:', event.type);
         }
 
         return NextResponse.json({ received: true });
-    } catch (error) {
-        console.error('Erreur webhook:', error);
+    } catch {
         return NextResponse.json(
             { error: 'Erreur webhook' },
             { status: 400 }

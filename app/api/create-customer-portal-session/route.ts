@@ -25,8 +25,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error) {
-    console.error('Erreur portail client Stripe:', error);
+  } catch {
     return NextResponse.json({ error: 'Erreur lors de la création du portail client.' }, { status: 500 });
   }
 } 

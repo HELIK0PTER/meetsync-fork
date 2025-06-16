@@ -27,7 +27,7 @@ function TrophyCard({ trophy }: { trophy: Trophy }) {
           </div>
         </div>
         <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           ></div>
@@ -37,22 +37,13 @@ function TrophyCard({ trophy }: { trophy: Trophy }) {
   );
 }
 
-export default async function Dashboard() {
+export default async function DashboardPage() {
   const supabase = await createClient();
   // Récupérer l'utilisateur connecté
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return <div className="text-center py-20 text-xl">Veuillez vous connecter.</div>;
   }
-
-  // Récupérer le profil utilisateur
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name')
-    .eq('id', user.id)
-    .single();
-
-  const userName = profile?.full_name?.split('.')[1] || user.email?.split('@')[0] || 'Utilisateur';
 
   // Récupérer les événements créés ou où l'utilisateur est invité
   const { data: ownedEvents } = await supabase

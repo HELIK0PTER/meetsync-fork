@@ -3,7 +3,6 @@
 import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Chip } from "@heroui/chip";
-import { Spacer } from "@heroui/spacer";
 import { useState } from "react";
 import { SUBSCRIPTION_PLANS } from '@/utils/subscription-plans';
 import { createClient } from '@/utils/supabase/client';
@@ -28,7 +27,7 @@ export default function PlanPage() {
       } else {
         alert('Erreur lors de la redirection vers Stripe Checkout');
       }
-    } catch (e) {
+    } catch {
       alert('Erreur lors de la redirection vers Stripe Checkout');
     } finally {
       setLoading(null);

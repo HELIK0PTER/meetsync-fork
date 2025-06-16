@@ -11,7 +11,6 @@ export default function SubscriptionPage() {
     const [loading, setLoading] = useState<string | null>(null);
     const [profile, setProfile] = useState<any>(null);
     const [user, setUser] = useState<any>(null);
-    const [profileLoading, setProfileLoading] = useState(true);
     const supabase = createClient();
 
     useEffect(() => {
@@ -22,7 +21,6 @@ export default function SubscriptionPage() {
                 const { data } = await supabase.from("profiles").select("subscription_plan, subscription_status").eq("id", user.id).single();
                 setProfile(data);
             }
-            setProfileLoading(false);
         };
         fetchProfile();
         // eslint-disable-next-line
@@ -48,8 +46,7 @@ export default function SubscriptionPage() {
                 const stripe = await stripePromise;
                 await stripe?.redirectToCheckout({ sessionId });
             }
-        } catch (error) {
-            console.error('Erreur:', error);
+        } catch {
             alert('Une erreur est survenue');
         } finally {
             setLoading(null);
@@ -71,7 +68,7 @@ export default function SubscriptionPage() {
             } else {
                 alert('Erreur lors de la redirection vers le portail Stripe');
             }
-        } catch (e) {
+        } catch {
             alert('Erreur lors de la redirection vers le portail Stripe');
         } finally {
             setLoading(null);

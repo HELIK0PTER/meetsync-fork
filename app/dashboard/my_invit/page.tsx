@@ -5,6 +5,7 @@ import { Card } from "@heroui/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
+import Image from "next/image";
 
 // Définition du type pour les invitations
 interface Invitation {
@@ -49,11 +50,10 @@ export default function MesInvitationsPage() {
         .select("*")
         .order("invite_created_at", { ascending: false });
 
-      if (error) {
-        console.error("Erreur lors de la récupération des invitations:", error);
-      } else {
+      if (!error) {
         setActiveInvitations(data as Invitation[]);
       }
+
       setIsLoading(false);
     };
     fetchInvitations();
@@ -248,9 +248,11 @@ export default function MesInvitationsPage() {
               >
                 <div className="relative h-48 bg-neutral-800">
                   {invitation.banner_url ? (
-                    <img
+                    <Image
                       src={invitation.banner_url}
                       alt={invitation.event_name || "Événement"}
+                      width={100}
+                      height={100}
                       className="w-full h-full object-cover"
                     />
                   ) : (

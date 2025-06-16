@@ -3,7 +3,6 @@ import EventList from "./EventList";
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import EventCalendar from "./EventCalendar";
 
 function countInvitations(events: any[]) {
   let total = 0, accepted = 0, refused = 0, waiting = 0;
@@ -41,7 +40,7 @@ export default function DashboardClient({
   let filteredUpcoming = upcomingEvents.filter(e => e.event_name.toLowerCase().includes(search.toLowerCase()));
   filteredUpcoming = filteredUpcoming.sort((a, b) => sortAsc ? new Date(a.event_date).getTime() - new Date(b.event_date).getTime() : new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
   // Invitations
-  const { total: totalInv, accepted: acceptedInv, refused: refusedInv, waiting: waitingInv } = countInvitations([...upcomingEvents, ...pastEvents]);
+  const { accepted: acceptedInv, refused: refusedInv, waiting: waitingInv } = countInvitations([...upcomingEvents, ...pastEvents]);
   // Badge 'Nouveau' (moins de 3 jours)
   const isNew = (date: string) => {
     const d = new Date(date);

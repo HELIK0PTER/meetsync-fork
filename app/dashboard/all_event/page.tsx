@@ -44,7 +44,6 @@ export default function RechercheEvenementsPage() {
 
   const eventsPerPage = 9;
   const supabase = createClient();
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -57,9 +56,7 @@ export default function RechercheEvenementsPage() {
         .eq('is_public', true)
         .order("event_date", { ascending: false });
 
-      if (error) {
-        console.error("Erreur lors de la récupération des événements:", error);
-      } else {
+      if (!error) {
         const formattedEvents = data.map((event) => {
           const eventDate = new Date(event.event_date);
           return {
@@ -163,8 +160,7 @@ export default function RechercheEvenementsPage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) setUserId(user.id);
+      await supabase.auth.getUser();
     };
     fetchUser();
   }, [supabase]);

@@ -17,8 +17,6 @@ export default function LoginPage({ searchParams }: Props) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-
   const redirect = use(searchParams)?.redirect || "/dashboard";
 
   const supabase = createClient();

@@ -33,7 +33,6 @@ type Event = {
 };
 
 export default function MesEvenementsPage() {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeEvents, setActiveEvents] = useState<Event[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -56,8 +55,7 @@ export default function MesEvenementsPage() {
     const fetchEvents = async () => {
       if (!userId) return;
 
-      try {
-        const { data: userEvents, error: userEventsError } = await supabase
+        const { data: userEvents } = await supabase
           .from('event')
           .select(`
             *,
@@ -67,13 +65,8 @@ export default function MesEvenementsPage() {
           .eq('owner_id', userId)
           .order('event_date', { ascending: true });
 
-        if (userEventsError) {
-          console.error('Erreur Supabase (événements utilisateur):', userEventsError);
-          throw userEventsError;
-        }
-
         // Calculer les compteurs pour chaque événement
-        const eventsWithCounts = userEvents.map((event) => {
+        const eventsWithCounts = userEvents?.map((event) => {
           const acceptedCount = event.invites?.filter((invite: { status: string }) => invite.status === 'accept').length || 0;
           const waitingCount = event.invites?.filter((invite: { status: string }) => invite.status === 'waiting').length || 0;
           const refusedCount = event.invites?.filter((invite: { status: string }) => invite.status === 'refused').length || 0;
@@ -87,12 +80,9 @@ export default function MesEvenementsPage() {
           };
         });
 
-        setActiveEvents(eventsWithCounts);
-      } catch (error) {
-        console.error('Erreur lors du chargement des événements:', error);
-      } finally {
-        setIsLoading(false);
-      }
+        setActiveEvents(eventsWithCounts || []);
+
+      setIsLoading(false);
     };
 
     fetchEvents();
@@ -187,8 +177,6 @@ export default function MesEvenementsPage() {
               href={`/dashboard/my_event/${event.id}`}
               key={event.id}
               className="block"
-              onMouseEnter={() => setHoveredId(event.id)}
-              onMouseLeave={() => setHoveredId(null)}
             >
               <Card
                 className="relative overflow-hidden rounded-2xl bg-neutral-900 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:ring-2 hover:ring-violet-500"

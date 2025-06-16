@@ -18,8 +18,6 @@ export default function SignupPage({ searchParams }: Props) {
   const router = useRouter();
   const supabase = createClient();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-
   const redirect = use(searchParams)?.redirect || "/dashboard";
 
   const validatePassword = (

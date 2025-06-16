@@ -86,8 +86,7 @@ export default function InviteManager({
           table: "invite",
           filter: `event_id=eq.${event.id}`,
         },
-        (payload) => {
-          console.log("Changement temps réel reçu:", payload);
+        () => {
           // Quand un changement se produit, refetch la liste complète
           // Une approche plus optimiste serait de manipuler l'état local,
           // mais un refetch est plus simple et garantit la cohérence avec la DB
@@ -116,7 +115,7 @@ export default function InviteManager({
 
     try {
       // Ajout de l'invitation dans la base de données
-      const { data, error: supabaseError } = await supabase
+      const { error: supabaseError } = await supabase
         .from("invite")
         .insert([
           {
@@ -152,14 +151,13 @@ export default function InviteManager({
       });
 
       if (!response.ok) {
-        console.error("Erreur lors de l'envoi de l'email");
+        setError("Une erreur est survenue lors de l'envoi de l'email.");
       }
 
       setInviteName("");
       setInvitePay(true);
       setShowModal(false);
-    } catch (error) {
-      console.error("Erreur:", error);
+    } catch {
       setError("Une erreur est survenue lors de l'ajout de l'invitation.");
     } finally {
       setAddingInvite(false);
@@ -220,7 +218,7 @@ export default function InviteManager({
         </div>
       ) : (
         <Listbox aria-label="Invitations" className="bg-neutral-900 rounded-lg">
-          {invitesToShow.map((inv, index) => (
+          {invitesToShow.map((inv) => (
             <ListboxItem
               key={inv.id}
               textValue={inv.email || "Inconnu"}

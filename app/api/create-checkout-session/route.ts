@@ -51,8 +51,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error) {
-    console.error('Erreur:', error);
+  } catch {
     return NextResponse.json({ error: 'Erreur lors de la création de la session' }, { status: 500 });
   }
-} 
+}

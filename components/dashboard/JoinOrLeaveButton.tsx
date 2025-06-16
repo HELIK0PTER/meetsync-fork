@@ -10,7 +10,6 @@ export default function JoinOrLeaveButton({ eventId, ownerId }: { eventId: strin
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
-  const [mustPay, setMustPay] = useState<boolean>(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,14 +49,13 @@ export default function JoinOrLeaveButton({ eventId, ownerId }: { eventId: strin
   const handleJoin = async () => {
     if (!userId) return;
     setLoading(true);
-    console.log('Infos utilisateur pour invite:', { userId, userEmail, displayName, profilePicture });
     const { error } = await supabase
       .from("invite")
       .insert({
         event_id: eventId,
         user_id: userId,
         status: "accepted",
-        must_pay: mustPay,
+        must_pay: false,
         email: userEmail,
         display_name: displayName,
         profile_picture: profilePicture,
@@ -67,7 +65,7 @@ export default function JoinOrLeaveButton({ eventId, ownerId }: { eventId: strin
         event_id: eventId,
         user_id: userId,
         status: "accepted",
-        must_pay: mustPay,
+        must_pay: false,
         email: userEmail,
         display_name: displayName,
         profile_picture: profilePicture,
@@ -79,7 +77,6 @@ export default function JoinOrLeaveButton({ eventId, ownerId }: { eventId: strin
   const handleLeave = async () => {
     if (!userId || !userEmail) return;
     setLoading(true);
-    console.log('Tentative de désinscription avec:', { userId, userEmail, eventId });
     
     const { error, data } = await supabase
       .from("invite")
@@ -87,11 +84,9 @@ export default function JoinOrLeaveButton({ eventId, ownerId }: { eventId: strin
       .eq("event_id", eventId)
       .or(`and(user_id.eq.${userId},event_id.eq.${eventId}),and(email.eq.${userEmail},event_id.eq.${eventId})`);
     
-    console.log('Résultat suppression invite:', { error, data });
     if (!error) {
       setInvite(null);
     } else {
-      console.error('Erreur détaillée:', error);
       alert("Erreur lors de la désinscription !");
     }
     setLoading(false);

@@ -6,56 +6,6 @@ import { createClient } from "@/utils/supabase/server";
 import Title from "./_components/Title";
 import { SUBSCRIPTION_PLANS } from '@/utils/subscription-plans';
 
-interface Feature {
-  text: string;
-  included: boolean;
-}
-
-interface Plan {
-  name: string;
-  price: string;
-  period?: string;
-  features: Feature[];
-  hasTrial?: boolean;
-}
-
-const PLANS: Plan[] = [
-  {
-    name: "Basic",
-    price: "GRATUIT",
-    features: [
-      { text: "2 événements simultanés", included: true },
-      { text: "20 invitations par événement", included: true },
-      { text: "Pas de personnalisation des invitations", included: false },
-      { text: "Pas d'envoi automatique des rappels", included: false },
-    ],
-  },
-  {
-    name: "Plus",
-    price: "10€",
-    period: "/mois",
-    hasTrial: true,
-    features: [
-      { text: "10 événements simultanés", included: true },
-      { text: "300 invitations par événement", included: true },
-      { text: "8 invitations personnalisables par mois", included: true },
-      { text: "Pas d'envoi automatique des rappels", included: false },
-    ],
-  },
-  {
-    name: "Pro",
-    price: "200€",
-    period: "/mois",
-    hasTrial: true,
-    features: [
-      { text: "Événements simultanés illimités", included: true },
-      { text: "Invitations par événement illimitées", included: true },
-      { text: "300 invitations personnalisables par mois", included: true },
-      { text: "Rappels par mails automatiques configurables", included: true },
-    ],
-  },
-];
-
 const PlansSection = async () => {
   const supabase = await createClient();
   const {

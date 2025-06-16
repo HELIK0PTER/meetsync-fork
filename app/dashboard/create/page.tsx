@@ -85,26 +85,22 @@ export default function Dashboard() {
     e.preventDefault();
     setIsSubmitting(true);
     let data = Object.fromEntries(new FormData(e.currentTarget));
-    console.log(data);
-    console.log(userId);
-    console.log(isPublic);
-    console.log(hasReminder);
 
     let imageUrl = null;
     if (imageFile) {
-      const fileExt = imageFile.name.split('.').pop();
+      const fileExt = imageFile.name.split(".").pop();
       const fileName = `${userId}-${Date.now()}.${fileExt}`;
       const filePath = `event-banners/${fileName}`;
-      const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from('banners')
+      const { error: uploadError } = await supabase.storage
+        .from("banners")
         .upload(filePath, imageFile, { upsert: true });
       if (uploadError) {
         setIsSubmitting(false);
         alert("Erreur lors de l'upload de l'image");
         return;
       }
-      imageUrl = supabase.storage.from('banners').getPublicUrl(filePath).data.publicUrl;
+      imageUrl = supabase.storage.from("banners").getPublicUrl(filePath)
+        .data.publicUrl;
     }
     const { data: inserted, error } = await supabase
       .from("event")
@@ -125,7 +121,6 @@ export default function Dashboard() {
 
     if (error) {
       setIsSubmitting(false);
-      console.error(error);
       return;
     }
     // On récupère l'id de l'événement créé
@@ -145,16 +140,28 @@ export default function Dashboard() {
       <div className="absolute inset-0 pointer-events-none">
         {/* Cercles lumineux */}
         <div className="absolute left-0 top-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute right-0 bottom-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        
+        <div
+          className="absolute right-0 bottom-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+
         {/* Lignes animées */}
         <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-purple-500/20 to-transparent animate-pulse"></div>
-        <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-pink-500/20 to-transparent animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-        
+        <div
+          className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-pink-500/20 to-transparent animate-pulse"
+          style={{ animationDelay: "0.5s" }}
+        ></div>
+
         {/* Particules flottantes */}
         <div className="absolute left-10 top-1/4 w-2 h-2 bg-purple-400/30 rounded-full animate-float"></div>
-        <div className="absolute right-20 top-3/4 w-2 h-2 bg-purple-400/30 rounded-full animate-float" style={{ animationDelay: '1.1s' }}></div>
-        <div className="absolute left-1/3 top-1/2 w-2 h-2 bg-indigo-400/30 rounded-full animate-float" style={{ animationDelay: '1.3s' }}></div>
+        <div
+          className="absolute right-20 top-3/4 w-2 h-2 bg-purple-400/30 rounded-full animate-float"
+          style={{ animationDelay: "1.1s" }}
+        ></div>
+        <div
+          className="absolute left-1/3 top-1/2 w-2 h-2 bg-indigo-400/30 rounded-full animate-float"
+          style={{ animationDelay: "1.3s" }}
+        ></div>
       </div>
 
       <div className="w-full max-w-xl mx-auto px-4 relative">
@@ -162,7 +169,9 @@ export default function Dashboard() {
           <span className={title({ color: "violet" })}>
             Création d'événements&nbsp;
           </span>
-          <p className="text-gray-400 mt-2">Remplissez les informations ci-dessous pour créer votre événement</p>
+          <p className="text-gray-400 mt-2">
+            Remplissez les informations ci-dessous pour créer votre événement
+          </p>
         </div>
         <Spacer y={4} />
         {isSubmitting && (
@@ -179,7 +188,9 @@ export default function Dashboard() {
             <div className="space-y-8 w-full max-w-md">
               {/* Champ image */}
               <div className="flex flex-col gap-2 items-center w-full">
-                <label className="text-gray-300 text-md font-medium">Image de l'événement</label>
+                <h1 className="text-gray-300 text-md font-medium">
+                  Image de l'événement
+                </h1>
                 <div className="w-full flex flex-col items-center justify-center">
                   <input
                     type="file"
@@ -190,10 +201,21 @@ export default function Dashboard() {
                   />
                   {imagePreview && (
                     <div className="mt-4 flex flex-col items-end gap-2 w-full">
-                      <Image src={imagePreview} alt="Preview" width={320} height={180} className="rounded-xl border-2 border-violet-500/40 shadow-lg self-center" />
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        width={320}
+                        height={180}
+                        className="rounded-xl border-2 border-violet-500/40 shadow-lg self-center"
+                      />
                       <button
                         type="button"
-                        onClick={() => { setImageFile(null); setImagePreview(null); if(inputFileRef.current) inputFileRef.current.value = ""; }}
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview(null);
+                          if (inputFileRef.current)
+                            inputFileRef.current.value = "";
+                        }}
                         className="px-4 py-1 rounded-full bg-neutral-900 hover:bg-violet-700 text-white text-xs font-semibold shadow transition-all mt-2"
                       >
                         Retirer l'image
@@ -214,7 +236,7 @@ export default function Dashboard() {
                 type="text"
                 classNames={{
                   input: "bg-black/40 border-neutral-800",
-                  label: "text-gray-300"
+                  label: "text-gray-300",
                 }}
               />
               <I18nProvider locale="fr">
@@ -229,7 +251,7 @@ export default function Dashboard() {
                   classNames={{
                     input: "bg-black/40 border-neutral-800",
                     label: "text-gray-300",
-                    calendar: "text-white"
+                    calendar: "text-white",
                   }}
                 />
               </I18nProvider>
@@ -243,7 +265,7 @@ export default function Dashboard() {
                 type="text"
                 classNames={{
                   input: "bg-black/40 border-neutral-800",
-                  label: "text-gray-300"
+                  label: "text-gray-300",
                 }}
               />
               <Input
@@ -256,7 +278,7 @@ export default function Dashboard() {
                 type="text"
                 classNames={{
                   input: "bg-black/40 border-neutral-800",
-                  label: "text-gray-300"
+                  label: "text-gray-300",
                 }}
               />
               <Input
@@ -269,30 +291,30 @@ export default function Dashboard() {
                 type="text"
                 classNames={{
                   input: "bg-black/40 border-neutral-800",
-                  label: "text-gray-300"
+                  label: "text-gray-300",
                 }}
               />
             </div>
             <Divider className="my-4 w-full max-w-md" />
             <div className="space-y-8 w-full max-w-md">
               <div className="flex flex-col gap-8">
-                <Checkbox 
-                  isSelected={isPublic} 
+                <Checkbox
+                  isSelected={isPublic}
                   onChange={() => setIsPublic(!isPublic)}
                   classNames={{
                     label: "text-gray-300 text-lg",
-                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
+                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2",
                   }}
                 >
                   Événement public
                 </Checkbox>
                 <div className="flex flex-col gap-8">
-                  <Checkbox 
-                    isSelected={isPaid} 
+                  <Checkbox
+                    isSelected={isPaid}
                     onChange={handleCheckboxChange}
                     classNames={{
                       label: "text-gray-300 text-lg",
-                      wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
+                      wrapper: "border-2 border-purple-500/30 rounded-lg p-2",
                     }}
                   >
                     Événement payant
@@ -311,7 +333,7 @@ export default function Dashboard() {
                         onChange={(e) => setPrice(e.target.value)}
                         classNames={{
                           input: "bg-black/40 border-neutral-800",
-                          label: "text-gray-300"
+                          label: "text-gray-300",
                         }}
                       />
                       <Input
@@ -326,17 +348,17 @@ export default function Dashboard() {
                         onChange={(e) => setPaypalEmail(e.target.value)}
                         classNames={{
                           input: "bg-black/40 border-neutral-800",
-                          label: "text-gray-300"
+                          label: "text-gray-300",
                         }}
                       />
                     </div>
                   )}
                 </div>
-                <Checkbox 
+                <Checkbox
                   onClick={() => setHasReminder(!hasReminder)}
                   classNames={{
                     label: "text-gray-300 text-lg",
-                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
+                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2",
                   }}
                 >
                   Rappel automatique
@@ -349,26 +371,27 @@ export default function Dashboard() {
                   onClick={() => setIsEmailDisabled(!isEmailDisabled)}
                   classNames={{
                     label: "text-gray-300 text-md",
-                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2"
+                    wrapper: "border-2 border-purple-500/30 rounded-lg p-2",
                   }}
                 >
                   Email personnalisé
                 </Checkbox>
                 <p className="text-gray-500 text-xs ml-2">
-                  Email personnalisé est seulement pour les offres <span className="text-purple-400">Pro</span>
+                  Email personnalisé est seulement pour les offres{" "}
+                  <span className="text-purple-400">Pro</span>
                 </p>
               </div>
             </div>
             <div className="flex gap-6 justify-center w-full max-w-md mt-4">
-              <Button 
-                type="reset" 
+              <Button
+                type="reset"
                 variant="flat"
                 className="bg-black/40 hover:bg-black/60 text-gray-300 border border-neutral-800"
               >
                 Réinitialiser
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="bg-[#7c3aed] hover:bg-violet-700 text-white font-semibold px-8 py-3 rounded-lg"
                 isLoading={isSubmitting}
               >

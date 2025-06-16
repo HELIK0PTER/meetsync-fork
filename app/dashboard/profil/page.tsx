@@ -10,7 +10,6 @@ import {
 } from "@heroui/modal";
 import { useDisclosure } from "@heroui/use-disclosure";
 import { Spacer } from "@heroui/spacer";
-import Link from "next/link";
 
 import { Form, Input } from "@heroui/react";
 import { Divider } from "@heroui/divider";
@@ -18,11 +17,9 @@ import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Avatar } from "@heroui/avatar";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { SUBSCRIPTION_PLANS } from '@/utils/subscription-plans';
 
 export default function Dashboard() {
   const supabase = createClient();
@@ -30,14 +27,16 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const router = useRouter();
-
   const [portalOrPlanLoading, setPortalOrPlanLoading] = useState(false);
+
+  const closeModal = () => {
+    onClose();
+    setDeleting(false);
+  }
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -68,7 +67,6 @@ export default function Dashboard() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     try {
-      setUploading(true);
       const file = event.target.files?.[0];
       if (!file) return;
 
@@ -111,11 +109,8 @@ export default function Dashboard() {
 
       // Recharger la page pour voir les changements
       window.location.reload();
-    } catch (error) {
-      console.error("Erreur:", error);
+    } catch {
       alert("Erreur lors du changement d'avatar");
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -131,7 +126,6 @@ export default function Dashboard() {
         .single();
 
       if (profileError) {
-        console.error("Erreur profil:", profileError);
         throw new Error("Erreur lors de la récupération du profil");
       }
 
@@ -157,8 +151,7 @@ export default function Dashboard() {
         if (!meetingsError && createdMeetings) {
           exportData.created_meetings = createdMeetings;
         }
-      } catch (error) {
-        console.error("Erreur meetings:", error);
+      } catch {
         // Continue même si cette partie échoue
       }
 
@@ -178,8 +171,7 @@ export default function Dashboard() {
         if (!participationsError && participations) {
           exportData.meeting_participations = participations;
         }
-      } catch (error) {
-        console.error("Erreur participations:", error);
+      } catch {
         // Continue même si cette partie échoue
       }
 
@@ -195,13 +187,8 @@ export default function Dashboard() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Erreur lors de l'export:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de l'export des données"
-      );
+    } catch {
+      alert("Erreur lors de l'export des données");
     } finally {
       setExporting(false);
     }
@@ -227,7 +214,7 @@ export default function Dashboard() {
         // Sinon, on redirige vers la page de choix de plan
         window.location.href = '/dashboard/plan';
       }
-    } catch (e) {
+    } catch {
       alert('Erreur lors de la redirection');
     } finally {
       setPortalOrPlanLoading(false);
@@ -397,7 +384,7 @@ export default function Dashboard() {
       </Card>
 
       {/* Modal de confirmation */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalContent>
           <ModalHeader>Confirmer la suppression</ModalHeader>
           <ModalBody>
@@ -414,7 +401,7 @@ export default function Dashboard() {
             </ul>
           </ModalBody>
           <ModalFooter>
-            <Button color="default" onClick={onClose}>
+            <Button color="default" onClick={closeModal}>
               Annuler
             </Button>
             <Button color="danger">Supprimer définitivement</Button>
